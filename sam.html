@@ -1,370 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Merokala</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="who.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merokala</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="ruf.css">
 
-<!-- Inline Carousel CSS -->
-<style>
-/* === Page Background === */
-body {
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #fff4e6, #ffe1d6);
-  color: #333;
-  overflow-x: hidden;
-}
+  <!-- Inline Carousel CSS -->
+  <style>
+    /* === Page Background === */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      color: #333;
+      background-color: #fff4e6;
+    }
 
-/* === Carousel Section === */
-.carousel {
-  position: relative;
-  width: 90%;
-  max-width: 1400px;
-  height: 380px;
-  margin: 10px auto 60px auto;
-  overflow: hidden;
-  border-radius: 25px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-  background: #fff;
-}
+    /* === Carousel Section === */
+    .carousel {
+      position: relative;
+      width: 90%;
+      max-width: 1400px;
+      height: 380px;
+      margin: 10px auto 60px auto;
+      overflow: hidden;
+      border-radius: 25px;
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+      background: #fff;
+    }
 
-/* === Slides === */
-.slides {
-  display: flex;
-  transition: transform 0.7s ease-in-out;
-}
+    /* === Slides === */
+    .slides {
+      display: flex;
+      transition: transform 0.7s ease-in-out;
+    }
 
-/* === Each Slide === */
-.slide {
-  min-width: 100%;
-  height: 380px;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  position: relative;
-  border-radius: 25px;
-  padding-bottom: 50px;
-  overflow: hidden;
-}
+    /* === Each Slide === */
+    .slide {
+      min-width: 100%;
+      height: 380px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      position: relative;
+      border-radius: 25px;
+      padding-bottom: 50px;
+      overflow: hidden;
+    }
 
-/* Gradient Overlay */
-.slide::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.15));
-  border-radius: 25px;
-}
+    /* Gradient Overlay */
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.15));
+      border-radius: 25px;
+    }
 
-/* === Slide Text === */
-.slide-text {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(4px);
-  color: #fff;
-  padding: 28px 45px;
-  border-radius: 15px;
-  max-width: 700px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
-}
+    /* === Slide Text === */
+    .slide-text {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      padding: 28px 45px;
+      border-radius: 15px;
+      max-width: 700px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    }
 
-.slide-text h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
+    .slide-text h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
 
-.slide-text p {
-  font-size: 1rem;
-  opacity: 0.95;
-  margin-bottom: 20px;
-  line-height: 1.6;
-}
+    .slide-text p {
+      font-size: 1rem;
+      opacity: 0.95;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
 
-/* === Buttons inside slides === */
-button.btn {
-  background-color: #ff7f50;
-  color: white;
-  padding: 12px 28px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(255, 127, 80, 0.3);
-}
+    /* === Buttons inside slides === */
+    button.btn {
+      background-color: #ff7f50;
+      color: white;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(255, 127, 80, 0.3);
+    }
 
-button.btn:hover {
-  background-color: #ff6333;
-  transform: translateY(-3px);
-}
+    button.btn:hover {
+      background-color: #ff6333;
+      transform: translateY(-3px);
+    }
 
-/* === Top-right Controls === */
-.carousel-controls {
-  position: absolute;
-  top: 15px;
-  right: 40px;
-  display: flex;
-  align-items: center;
-  gap: 50px;
-  z-index: 200;
-}
+    /* === Top-right Controls === */
+    .carousel-controls {
+      position: absolute;
+      top: 15px;
+      right: 40px;
+      display: flex;
+      align-items: center;
+      gap: 50px;
+      z-index: 200;
+    }
 
-.nav-btn, .pause-btn {
-  background: rgba(255,255,255,0.85);
-  color: #333;
-  border: none;
-  padding: 10px 16px;
-  font-size: 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
+    .nav-btn,
+    .pause-btn {
+      background: rgba(255, 255, 255, 0.85);
+      color: #333;
+      border: none;
+      padding: 10px 16px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
 
-.nav-btn:hover, .pause-btn:hover {
-  background: rgba(255,255,255,1);
-}
+    .nav-btn:hover,
+    .pause-btn:hover {
+      background: rgba(255, 255, 255, 1);
+    }
 
-/* Dots Navigation */
-.dots {
-  position: absolute;
-  bottom: 18px;
-  width: 100%;
-  text-align: center;
-}
+    /* Dots Navigation */
+    .dots {
+      position: absolute;
+      bottom: 18px;
+      width: 100%;
+      text-align: center;
+    }
 
-.dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin: 0 5px;
-  background: rgba(255,255,255,0.6);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin: 0 5px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
 
-.dot.active {
-  background: #fff;
-}
+    .dot.active {
+      background: #fff;
+    }
 
-/* === Responsive === */
-@media (max-width: 768px) {
-  .carousel {
-    height: 330px;
-    margin: 5px auto 40px auto;
-  }
+    /* === Responsive === */
+    @media (max-width: 768px) {
+      .carousel {
+        height: 330px;
+        margin: 5px auto 40px auto;
+      }
 
-  .slide {
-    height: 330px;
-    padding-bottom: 40px;
-  }
+      .slide {
+        height: 330px;
+        padding-bottom: 40px;
+      }
 
-  .slide-text {
-    padding: 18px 25px;
-    font-size: 0.9rem;
-  }
+      .slide-text {
+        padding: 18px 25px;
+        font-size: 0.9rem;
+      }
 
-  .slide-text h1 {
-    font-size: 1.3rem;
-  }
+      .slide-text h1 {
+        font-size: 1.3rem;
+      }
 
-  .nav-btn, .pause-btn {
-    padding: 8px 12px;
-    font-size: 16px;
-  }
-}
-</style>
+      .nav-btn,
+      .pause-btn {
+        padding: 8px 12px;
+        font-size: 16px;
+      }
+    }
+  </style>
 
 </head>
+
 <body>
 
-<header>
-  <div class="logo">Merokala</div>
+  <header>
+    <div class="logo">Merokala</div>
 
-  <!-- Left nav -->
-  <nav class="nav-left">
-    <div class="dropdown">
-      <a href="#" class="dropbtn">🟰 Categories</a>
-      <ul class="dropdown-content">
-        <li><a href="#">Accessories</a></li>
-        <li><a href="#">Art & Collectibles</a></li>
-        <li><a href="#">Baby</a></li>
-        <li><a href="#">Bags & Purses</a></li>
-        <li><a href="#">Bath & Beauty</a></li>
-        <li><a href="#">Books, Films & Music</a></li>
-        <li><a href="#">Clothing</a></li>
-        <li><a href="#">Craft Supplies & Tools</a></li>
-        <li><a href="#">Electronics & Accessories</a></li>
-        <li><a href="#">Gifts</a></li>
-        <li><a href="#">Home & Living</a></li>
-        <li><a href="#">Jewellery</a></li>
-        <li><a href="#">Paper & Party Supplies</a></li>
-        <li><a href="#">Pet Supplies</a></li>
-        <li><a href="#">Shoes</a></li>
-        <li><a href="#">Toys & Games</a></li>
-        <li><a href="#">Weddings</a></li>
-      </ul>
+    <!-- Left nav -->
+    <nav class="nav-left">
+      <div class="dropdown">
+        <a href="#" class="dropbtn">🟰 Categories</a>
+        <ul class="dropdown-content">
+          <li><a href="#">Accessories</a></li>
+          <li><a href="#">Art & Collectibles</a></li>
+          <li><a href="#">Baby</a></li>
+          <li><a href="#">Bags & Purses</a></li>
+          <li><a href="#">Bath & Beauty</a></li>
+          <li><a href="#">Books, Films & Music</a></li>
+          <li><a href="#">Clothing</a></li>
+          <li><a href="#">Craft Supplies & Tools</a></li>
+          <li><a href="#">Electronics & Accessories</a></li>
+          <li><a href="#">Gifts</a></li>
+          <li><a href="#">Home & Living</a></li>
+          <li><a href="#">Jewellery</a></li>
+          <li><a href="#">Paper & Party Supplies</a></li>
+          <li><a href="#">Pet Supplies</a></li>
+          <li><a href="#">Shoes</a></li>
+          <li><a href="#">Toys & Games</a></li>
+          <li><a href="#">Weddings</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Right nav -->
+    <div class="nav-right">
+      <div class="search-wrapper">
+        <input type="text" class="search-bar" placeholder="Search...">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div>
+
+        <a href="profile.php" class="icon-wrapper">
+          <span class="icon">👤</span>
+          <div class="tooltip">Profile</div>
+        </a>
+      </div>
+
+      <div>
+
+        <a href="cart.php" class="icon-wrapper">
+          <span class="icon">🛒</span>
+          <div class="tooltip">Cart</div>
+        </a>
+      </div>
+
+      <div>
+
+        <a href="favourites.php" class="icon-wrapper">
+          <span class="icon">🩷</span>
+          <div class="tooltip">Favourites</div>
+        </a>
+      </div>
+
+      <a href="signup.php" class="btn">Sign In</a>
     </div>
-  </nav>
 
-  <!-- Right nav -->
-   <div class="nav-right">
-    <div class="search-wrapper">
-      <input type="text" class="search-bar" placeholder="Search...">
-      <span class="search-icon">🔍</span>
-    </div>
+    <a href="sell.php" class="sell-link">Sell</a>
+  </header>
 
-    <div>
-
-    <a href="profile.php" class="icon-wrapper">
-      <span class="icon">👤</span>
-      <div class="tooltip">Profile</div> </a>
-    </div>
-
-    <div>
-
-    <a href="cart.php" class="icon-wrapper">
-      <span class="icon">🛒</span>
-      <div class="tooltip">Cart</div> </a>
-    </div>
-
-    <div>
-
-    <a href="favourites.php" class="icon-wrapper">
-      <span class="icon">🩷</span>
-      <div class="tooltip">Favourites</div></a>
-    </div>
-
-    <a href="signup.php" class="btn">Sign In</a>
-  </div>
-
-<a href="sell.php" class="sell-link">Sell</a>
-</header>
-
-<div id="overlay"></div>
-
-<!-- Carousel Section -->
-<section class="carousel">
-  <div class="slides">
-    <div class="slide" style="background-image: url('pics/one.png');">
-      <div class="slide-text">
-        <h1>Find Handmade Creations & Authentic Products</h1>
-        <p>Discover unique art and support independent creators from Nepal.</p>
-        <button class="btn">Shop Now</button>
+  <!-- Carousel Section -->
+  <section class="carousel">
+    <div class="slides">
+      <div class="slide" style="background-image: url('pics/one.png');">
+        <div class="slide-text">
+          <h1>Find Handmade Creations & Authentic Products</h1>
+          <p>Discover unique art and support independent creators from Nepal.</p>
+          <button class="btn">Shop Now</button>
+        </div>
+      </div>
+      <div class="slide" style="background-image: url('pics/two.png');">
+        <div class="slide-text">
+          <h1>List Your Products</h1>
+          <p>Join our community of artists and sell your handmade creations.</p>
+          <button class="btn">Start listing</button>
+        </div>
+      </div>
+      <div class="slide" style="background-image: url('pics/three.png');">
+        <div class="slide-text">
+          <h1>Connecting Creators & Admirers</h1>
+          <p>Support local artists and explore authentic, original products.</p>
+        </div>
       </div>
     </div>
-    <div class="slide" style="background-image: url('pics/two.png');">
-      <div class="slide-text">
-        <h1>List Your Products</h1>
-        <p>Join our community of artists and sell your handmade creations.</p>
-        <button class="btn">Start listing</button>
-      </div>
+
+    <!-- Top-right controls -->
+    <div class="carousel-controls">
+      <button class="nav-btn prev">&#10094;</button>
+      <button class="pause-btn">⏸</button>
+      <button class="nav-btn next">&#10095;</button>
     </div>
-    <div class="slide" style="background-image: url('pics/three.png');">
-      <div class="slide-text">
-        <h1>Connecting Creators & Admirers</h1>
-        <p>Support local artists and explore authentic, original products.</p>
+
+    <!-- Dots -->
+    <div class="dots"></div>
+
+  </section>
+
+  <!-- Canvas & Craft Section -->
+  <section class="product-section" style=" background-color: #fff4e6;
+">
+    <h2>Canvas & Craft</h2>
+    <div class="product-container">
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Canvas Painting</h3>
+        <p>Rs. 1500</p>
       </div>
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Mini Canvas Art</h3>
+        <p>Rs. 800</p>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Charcoal Sketch</h3>
+        <p>Rs. 1200</p>
+      </div>
+
     </div>
-  </div>
+  </section>
 
-  <!-- Top-right controls -->
-  <div class="carousel-controls">
-    <button class="nav-btn prev">&#10094;</button>
-    <button class="pause-btn">⏸</button>
-    <button class="nav-btn next">&#10095;</button>
-  </div>
 
-  <!-- Dots -->
-  <div class="dots"></div>
-</section>
+  <!-- Art & Decor Section -->
+  <section class="product-section" style=" background-color: #fff4e6;
+">
+    <h2>Art & Decor</h2>
+    <div class="product-container">
 
-<!-- JS for Carousel -->
-<script>
-const slides = document.querySelector('.slides');
-const slideElements = document.querySelectorAll('.slide');
-const slideCount = slideElements.length;
-const dotsContainer = document.querySelector('.dots');
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Wall Hanging</h3>
+        <p>Rs. 600</p>
+      </div>
 
-let currentIndex = 0;
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Wooden Sculpture</h3>
+        <p>Rs. 2500</p>
+      </div>
 
-// Create dots dynamically
-for (let i = 0; i < slideCount; i++) {
-  const dot = document.createElement('span');
-  dot.classList.add('dot');
-  if (i === 0) dot.classList.add('active');
-  dot.addEventListener('click', () => showSlide(i));
-  dotsContainer.appendChild(dot);
-}
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Decorative Frame</h3>
+        <p>Rs. 900</p>
+      </div>
 
-const dots = document.querySelectorAll('.dot');
+    </div>
+  </section>
 
-function showSlide(index) {
-  slides.style.transform = `translateX(-${index * 100}%)`;
-  dots.forEach(dot => dot.classList.remove('active'));
-  dots[index].classList.add('active');
-  currentIndex = index;
-}
 
-// Next/Prev buttons
-document.querySelector('.next').addEventListener('click', () => {
-  showSlide((currentIndex + 1) % slideCount);
-});
+  <!-- Sewing & Crochet Section -->
+  <section class="product-section" style=" background-color: #fff4e6;
+">
+    <h2>Sewing & Crochet</h2>
+    <div class="product-container">
 
-document.querySelector('.prev').addEventListener('click', () => {
-  showSlide((currentIndex - 1 + slideCount) % slideCount);
-});
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Crochet Bag</h3>
+        <p>Rs. 950</p>
+      </div>
 
-// Auto-slide
-let slideInterval = setInterval(() => showSlide((currentIndex + 1) % slideCount), 5000);
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Handmade Doll</h3>
+        <p>Rs. 700</p>
+      </div>
 
-// Pause Button
-const pauseBtn = document.querySelector('.pause-btn');
-let isPaused = false;
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Wool Flower</h3>
+        <p>Rs. 300</p>
+      </div>
 
-pauseBtn.addEventListener('click', () => {
-  isPaused = !isPaused;
-  pauseBtn.textContent = isPaused ? '▶' : '⏸';
-  if (isPaused) {
-    clearInterval(slideInterval);
-  } else {
-    slideInterval = setInterval(() => showSlide((currentIndex + 1) % slideCount), 5000);
-  }
-});
+    </div>
+  </section>
 
-const dropdown = document.querySelector('.dropdown');
-const dropbtn = document.querySelector('.dropbtn');
-const overlay = document.getElementById('overlay');
 
-dropbtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  dropdown.classList.toggle('active');
-  overlay.style.display = dropdown.classList.contains('active') ? 'block' : 'none';
-});
+  <!-- Jewelry & Accessories Section -->
+  <section class="product-section" style=" background-color: #fff4e6;
+">
+    <h2>Jewelry & Accessories</h2>
+    <div class="product-container">
 
-// Close dropdown if clicked outside
-document.addEventListener('click', (e) => {
-  if (!dropdown.contains(e.target) && !dropbtn.contains(e.target)) {
-    dropdown.classList.remove('active');
-    overlay.style.display = 'none';
-  }
-});
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Beaded Necklace</h3>
+        <p>Rs. 450</p>
+      </div>
 
-// Optional: clicking overlay closes dropdown
-overlay.addEventListener('click', () => {
-  dropdown.classList.remove('active');
-  overlay.style.display = 'none';
-});
-</script>
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Handmade Earrings</h3>
+        <p>Rs. 250</p>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Bracelet Set</h3>
+        <p>Rs. 550</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- Handmade Home Essentials Section -->
+  <section class="product-section" style=" background-color: #fff4e6;
+">
+    <h2>Handmade Home Essentials</h2>
+    <div class="product-container">
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Aroma Candle</h3>
+        <p>Rs. 300</p>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Handcrafted Coaster</h3>
+        <p>Rs. 200</p>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img placeholder"></div>
+        <h3>Clay Pot</h3>
+        <p>Rs. 500</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- JS for Carousel -->
+  <script>
+    const slides = document.querySelector('.slides');
+    const slideElements = document.querySelectorAll('.slide');
+    const slideCount = slideElements.length;
+    const dotsContainer = document.querySelector('.dots');
+
+    let currentIndex = 0;
+
+    // Create dots dynamically
+    for (let i = 0; i < slideCount; i++) {
+      const dot = document.createElement('span');
+      dot.classList.add('dot');
+      if (i === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => showSlide(i));
+      dotsContainer.appendChild(dot);
+    }
+
+    const dots = document.querySelectorAll('.dot');
+
+    function showSlide(index) {
+      slides.style.transform = `translateX(-${index * 100}%)`;
+      dots.forEach(dot => dot.classList.remove('active'));
+      dots[index].classList.add('active');
+      currentIndex = index;
+    }
+
+    // Next/Prev buttons
+    document.querySelector('.next').addEventListener('click', () => {
+      showSlide((currentIndex + 1) % slideCount);
+    });
+
+    document.querySelector('.prev').addEventListener('click', () => {
+      showSlide((currentIndex - 1 + slideCount) % slideCount);
+    });
+
+    // Auto-slide
+    let slideInterval = setInterval(() => showSlide((currentIndex + 1) % slideCount), 5000);
+
+    // Pause Button
+    const pauseBtn = document.querySelector('.pause-btn');
+    let isPaused = false;
+
+    pauseBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? '▶' : '⏸';
+      if (isPaused) {
+        clearInterval(slideInterval);
+      } else {
+        slideInterval = setInterval(() => showSlide((currentIndex + 1) % slideCount), 5000);
+      }
+    });
+
+    const dropdown = document.querySelector('.dropdown');
+    const dropbtn = document.querySelector('.dropbtn');
+    const overlay = document.getElementById('overlay');
+
+    dropbtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      dropdown.classList.toggle('active');
+      overlay.style.display = dropdown.classList.contains('active') ? 'block' : 'none';
+    });
+
+    // Close dropdown if clicked outside
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && !dropbtn.contains(e.target)) {
+        dropdown.classList.remove('active');
+        overlay.style.display = 'none';
+      }
+    });
+
+    // Optional: clicking overlay closes dropdown
+    overlay.addEventListener('click', () => {
+      dropdown.classList.remove('active');
+      overlay.style.display = 'none';
+    });
+  </script>
 
 </body>
+
 </html>
