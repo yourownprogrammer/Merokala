@@ -1,0 +1,110 @@
+/* -------------------------------------------
+   LOGIN PAGE STYLES (CLEAN + FIXED)
+-------------------------------------------- */
+
+/* Page background (NO FLEX HERE!) */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom right, #ffffff, #f1f1f1);
+}
+
+/* Center login card (this replaces flex on body) */
+/* FIX VERTICAL CENTERING ONLY ON LOGIN PAGE */
+.login-area {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: calc(100vh - 80px) !important;
+    padding: 0 !important;
+}
+
+
+/* Beautiful login card */
+.login-container {
+    width: 420px;             /* bigger */
+    padding: 40px 45px;       /* more breathing room */
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+    margin: 80px auto;        /* reduce empty space above */
+}
+
+/* Title */
+.title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 25px 0;
+}
+
+/* Grey pill bar */
+.new-box {
+    background: #f4f4f4;
+    padding: 12px 20px;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    width: fit-content;
+    margin: 0 auto 25px auto;
+}
+
+/* Create account button */
+.create-btn {
+    padding: 8px 18px;
+    border-radius: 30px;
+    border: 1.5px solid #000;
+    text-decoration: none;
+    color: #000;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.25s ease-in-out;
+}
+
+.create-btn:hover {
+    background: #ff7a00;
+    color: #fff;
+}
+
+/* Input + Button stack */
+.form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Input */
+.input-field {
+    padding: 15px;
+    font-size: 15px;
+    border: 1px solid #cfcfcf;
+    border-radius: 10px;
+    box-sizing: border-box;
+    transition: 0.2s;
+}
+
+.input-field:focus {
+    border-color: #ff7a00;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 122, 0, 0.4);
+}
+
+/* Orange Continue Button */
+.continue-btn {
+    padding: 15px;
+    background: #ff7a00;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease-in-out;
+}
+
+.continue-btn:hover {
+    background: #e56d00;
+    transform: translateY(-2px);
+}
