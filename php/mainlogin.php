@@ -12,8 +12,12 @@
 
 <body>
 
-<header>
+<!-- <header>
     <div class="logo">Merokala</div>
+</header> -->
+
+<header class="logo-header">
+    <a href="../hmt.html" class="logo">Merokala</a>
 </header>
 
 <section class="login-area">
@@ -23,7 +27,7 @@
 
         <div class="new-box">
             <span>New to our site?</span>
-            <a href="signup.php" class="create-btn">Create account</a>
+            <a href="usignup.php" class="create-btn">Create account</a>
         </div>
 
         <div class="form-box">
