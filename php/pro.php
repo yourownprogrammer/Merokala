@@ -1,86 +1,168 @@
 <?php
-// ===============================
-// DATABASE CONNECTION
-// ===============================
+
 $conn = new mysqli("localhost", "root", "", "merokalaa");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// ===============================
-// ERROR VARIABLES
-// ===============================
-$emailErr = "";
-$error = "";
+$firstNameErr = "";
+$lastNameErr  = "";
+$emailErr     = "";
+$phoneErr     = "";
+$passwordErr  = "";
+$confirmErr   = "";
+$skillErr     = "";
+$locationErr  = "";
 
-// ===============================
-// HANDLE FORM SUBMISSION
-// ===============================
+$hasError = false;
+
+
 if (isset($_POST["submit"])) {
 
     $first_name = trim($_POST["first_name"]);
     $last_name  = trim($_POST["last_name"]);
     $email      = trim($_POST["email"]);
     $phone      = trim($_POST["number"]);
-    $password   = $_POST["password"]; // TEMP (plain)
+    $password   = $_POST["password"];
+    $confirm    = $_POST["confirm_password"];
     $skill      = trim($_POST["skill_name"]);
     $location   = trim($_POST["location"]);
 
-    // ===============================
-    // EMAIL VALIDATION (CRITICAL FIX)
-    // ===============================
-    if ($email === "") {
-        $emailErr = "Email is required";
-    } else {
 
-        // CHECK IF EMAIL ALREADY EXISTS
-        $sql = "SELECT id FROM providers WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            die("Prepare failed: " . $conn->error);
-        }
 
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+// First name
+if ($first_name === "") {
+    $firstNameErr = "This field cannot be empty";
+    $hasError = true;
+} elseif (!preg_match("/^[A-Za-z ]+$/", $first_name)) {
+    $firstNameErr = "No numbers or symbols allowed";
+    $hasError = true;
+} elseif (strlen($first_name) < 4) {
+    $firstNameErr = "Name is too short";
+    $hasError = true;
+}
 
-        if ($result->num_rows > 0) {
-            $emailErr = "Email already exists";
+/* ===== LAST NAME ===== */
+if ($last_name === "") {
+    $lastNameErr = "This field cannot be empty";
+    $hasError = true;
+} elseif (!preg_match("/^[A-Za-z ]+$/", $last_name)) {
+    $lastNameErr = "No numbers or symbols allowed";
+    $hasError = true;
+} elseif (strlen($last_name) < 4) {
+    $lastNameErr = "Name is too short";
+    $hasError = true;
+}
+
+/* ===== EMAIL ===== */
+$emailPattern = "/^[A-Za-z][A-Za-z0-9]*@[A-Za-z]+[0-9]*(\.[A-Za-z]{2,})+$/";
+
+if ($email === "") {
+    $emailErr = "Email cannot be empty";
+    $hasError = true;
+} elseif (!preg_match($emailPattern, $email)) {
+    $emailErr = "Invalid email format eg:example1@gmail.com";
+    $hasError = true;
+}
+
+/* ===== PHONE ===== */
+if ($phone === "") {
+    $phoneErr = "Phone number is required";
+    $hasError = true;
+} elseif (!preg_match("/^[0-9]+$/", $phone)) {
+    $phoneErr = "Only numbers allowed";
+    $hasError = true;
+} elseif (!preg_match("/^(97|98)/", $phone)) {
+    $phoneErr = "Must start with 97 or 98";
+    $hasError = true;
+} elseif (strlen($phone) !== 10) {
+    $phoneErr = "Must be 10 digits";
+    $hasError = true;
+}
+
+/* ===== PASSWORD ===== */
+if (strlen($password) < 8) {
+    $passwordErr = "Minimum 8 characters required";
+    $hasError = true;
+} elseif (!preg_match("/[A-Za-z]/", $password)) {
+    $passwordErr = "At least one alphabet required";
+    $hasError = true;
+} elseif (!preg_match("/[0-9!@#$%^&*(),.?\":{}|<>]/", $password)) {
+    $passwordErr = "At least one number or symbol required";
+    $hasError = true;
+}
+
+/* ===== CONFIRM PASSWORD ===== */
+if ($password === "") {
+    $confirmErr = "Enter password first";
+    $hasError = true;
+} elseif ($password !== $confirm) {
+    $confirmErr = "Passwords do not match";
+    $hasError = true;
+}
+
+/* ===== SKILL ===== */
+if ($skill === "") {
+    $skillErr = "Skill is required";
+    $hasError = true;
+} elseif (preg_match("/[0-9]/", $skill)) {
+    $skillErr = "Numbers are not allowed";
+    $hasError = true;
+}
+
+/* ===== LOCATION ===== */
+if ($location === "") {
+    $locationErr = "Location is required";
+    $hasError = true;
+} elseif (!preg_match("/^[A-Za-z][A-Za-z0-9 -]*$/", $location)) {
+    $locationErr = "Must start with a letter";
+    $hasError = true;
+}
+
+  if ($hasError === false) {
+    $stmt = $conn->prepare("SELECT id FROM providers WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $emailErr = "Email already exists";
+        $hasError = true;
+    }
+    $stmt->close();
+}
+
+    if ($hasError === false) {
+
+        // TEMP plain password (hash later)
+        $stmt = $conn->prepare(
+            "INSERT INTO providers
+            (first_name, last_name, email, phone, password_plain, primary_skill, location)
+            VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+
+        $stmt->bind_param(
+            "sssssss",
+            $first_name,
+            $last_name,
+            $email,
+            $phone,
+            $password,
+            $skill,
+            $location
+        );
+
+        if ($stmt->execute()) {
+           header("Location: providersignup.php?email=" . urlencode($email));
+            exit;
         } else {
-
-            // ===============================
-            // INSERT PROVIDER
-            // ===============================
-            $sql = "INSERT INTO providers
-                (first_name, last_name, email, phone, password_plain, primary_skill, location)
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-            $stmt = $conn->prepare($sql);
-            if (!$stmt) {
-                die("Prepare failed: " . $conn->error);
-            }
-
-            $stmt->bind_param(
-                "sssssss",
-                $first_name,
-                $last_name,
-                $email,
-                $phone,
-                $password,
-                $skill,
-                $location
-            );
-
-            if ($stmt->execute()) {
-                header("Location: providersignup.php");
-                exit;
-            } else {
-                $error = "Registration failed";
-            }
+            $error = "Registration failed";
         }
     }
 }
 ?>
+
+
 
 
 
@@ -92,74 +174,35 @@ if (isset($_POST["submit"])) {
 <title>Provider Registration – Merokala</title>
 
 <style>
-/* ===== RESET & GLOBAL ===== */
 * {
     box-sizing: border-box;
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-    overflow-y: auto;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to bottom right, #ffffff, #f4f4f4);
+html, body {  height: 100%; margin: 0; overflow-y: auto; font-family: Arial, sans-serif; background: linear-gradient(to bottom right, #ffffff, #f4f4f4);
 }
 
-/* ===== HEADER ===== */
-.logo-header {
-    height: 70px;
-    display: flex;
-    align-items: center;
-    padding: 0 40px;
-    border-bottom: 1px solid #eee;
-    background: #fff;
+.logo-header {  height: 70px; display: flex; align-items: center; padding: 0 40px;  border-bottom: 1px solid #eee; background: #fff;
 }
 
-.logo-header a {
-    font-size: 32px;
-    font-weight: 700;
-    color: #ff7a00;
-    text-decoration: none;
+.logo-header a { font-size: 32px; font-weight: 700; color: #ff7a00; text-decoration: none;
 }
 
 /* ===== PAGE LAYOUT ===== */
-.page-wrapper {
-    min-height: calc(100vh - 70px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+.page-wrapper {  min-height: calc(100vh - 70px);  display: flex;  align-items: center;  justify-content: center;  padding: 20px;
 }
 
 /* ===== FORM CARD ===== */
-.provider-box {
-    width: 625px;
-    background: #fff;
-    border-radius: 22px;
-    padding: 40px 45px;
-    box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+.provider-box {  width: 625px;  background: #fff;  border-radius: 22px;  padding: 40px 45px;  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
 }
 
-.provider-box h2 {
-    margin: 0 0 10px;
-    text-align: center;
-    font-size: 28px;
-    font-weight: 700;
-    color: #333;
+.provider-box h2 {  margin: 0 0 10px;  text-align: center;  font-size: 28px;  font-weight: 700;  color: #333;
 }
 
-.provider-box p {
-    text-align: center;
-    margin: 0 0 22px;
-    font-size: 14.5px;
-    color: #666;
+.provider-box p {  text-align: center;  margin: 0 0 22px;  font-size: 14.5px;  color: #666;
 }
 
 /* ===== TWO COLUMN ROW ===== */
-.row-two {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 10px;
+.row-two { display: flex; gap: 15px; margin-bottom: 10px;
 }
 
 .field {
@@ -167,81 +210,41 @@ html, body {
 }
 
 /* ===== INPUTS ===== */
-.input-field {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 15.5px;
-    transition: 0.2s;
+.input-field {  width: 100%;  padding: 13px;  border: 1px solid #ccc;  border-radius: 8px;  font-size: 15.5px;  transition: 0.2s;
 }
 
-.input-field:focus {
-    border-color: #ff7a00;
-    box-shadow: 0 0 5px rgba(255,122,0,0.4);
-    outline: none;
+.input-field:focus { border-color: #ff7a00; box-shadow: 0 0 5px rgba(255,122,0,0.4); outline: none;
 }
 
 /* ===== ERRORS ===== */
-.error {
-    display: block;
-    color: red;
-    font-size: 12px;
-    margin-top: 4px;
+.error {  display: block;  color: red;  font-size: 12px;  margin-top: 4px;
 }
 
 /* ===== CHECKBOX ===== */
-.checkbox-row {
-    margin: 12px 0 18px;
-    font-size: 14px;
-    color: #555;
+.checkbox-row {  margin: 12px 0 18px;  font-size: 14px;  color: #555;
 }
 
-.checkbox-row a {
-    color: #ff7a00;
-    font-weight: 600;
-    text-decoration: none;
+.checkbox-row a {  color: #ff7a00;  font-weight: 600;  text-decoration: none;
 }
 
-.checkbox-row a:hover {
-    text-decoration: underline;
+.checkbox-row a:hover {  text-decoration: underline;
 }
 
 /* ===== BUTTON ===== */
-.signup-btn {
-    width: 100%;
-    padding: 14px;
-    background: #ff7a00;
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    font-size: 17px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.25s;
+.signup-btn {  width: 100%;  padding: 14px;  background: #ff7a00;  color: #fff;  border: none;  border-radius: 30px;  font-size: 17px;  font-weight: 600;  cursor: pointer;  transition: 0.25s;
 }
 
-.signup-btn:hover {
-    background: #e56d00;
-    transform: translateY(-2px);
+.signup-btn:hover { background: #e56d00; transform: translateY(-2px);
 }
 
 /* ===== FOOTER LINKS ===== */
-.footer-links {
-    margin-top: 14px;
-    font-size: 14px;
-    text-align: center;
-    color: #666;
+.footer-links {  margin-top: 14px; font-size: 14px; text-align: center; color: #666;
 }
 
-.footer-links a {
-    color: #ff7a00;
-    font-weight: 600;
-    text-decoration: none;
+.footer-links a {  color: #ff7a00;  font-weight: 600;  text-decoration: none;
 }
 
-.footer-links a:hover {
-    text-decoration: underline;
+.footer-links a:hover {  text-decoration: underline;
 }
 </style>
 </head>
@@ -262,46 +265,46 @@ html, body {
 
 <div class="row-two">
     <div class="field">
-        <input type="text" name="first_name" class="input-field" placeholder="First Name" required>
-        <span class="error"></span>
+        <input type="text" name="first_name" class="input-field" value="<?php echo htmlspecialchars($first_name ?? ''); ?>" placeholder="First Name" >
+        <span class="error"><?php echo $firstNameErr; ?></span>
     </div>
     <div class="field">
-        <input type="text" name="last_name" class="input-field" placeholder="Last Name" required>
-        <span class="error"></span>
+        <input type="text" name="last_name" class="input-field" value="<?php echo htmlspecialchars($last_name ?? ''); ?>" placeholder="Last Name" >
+        <span class="error"><?php echo $lastNameErr; ?></span>
     </div>
 </div>
 
 <div class="row-two">
     <div class="field">
-<input type="email" name="email" class="input-field" placeholder="Email address" required>
+<input type="email" name="email" class="input-field"  value="<?php echo htmlspecialchars($email ?? ''); ?>" placeholder="Email address">
 <span class="error"><?php echo $emailErr; ?></span>
 
     </div>
     <div class="field">
-        <input type="text" name="number" class="input-field" placeholder="Phone number" required>
-        <span class="error"></span>
+        <input type="text" name="number" class="input-field"  value="<?php echo htmlspecialchars($phone ?? ''); ?>" placeholder="Phone number" >
+        <span class="error"><?php echo $phoneErr; ?></span>
     </div>
 </div>
 
 <div class="row-two">
     <div class="field">
-        <input type="password" name="password" class="input-field" placeholder="Password" required>
-        <span class="error"></span>
+        <input type="password" name="password" class="input-field" placeholder="Password" >
+        <span class="error"><?php echo $passwordErr; ?></span>
     </div>
     <div class="field">
-        <input type="password" name="confirm_password" class="input-field" placeholder="Confirm Password" required>
-        <span class="error"></span>
+        <input type="password" name="confirm_password" class="input-field" placeholder="Confirm Password" >
+        <span class="error"><?php echo $confirmErr; ?></span>
     </div>
 </div>
 
 <div class="row-two">
     <div class="field">
-        <input type="text" name="skill_name" class="input-field" placeholder="Primary Skill / Profession" required>
-        <span class="error"></span>
+        <input type="text" name="skill_name" class="input-field"  value="<?php echo htmlspecialchars($skill ?? ''); ?>" placeholder="Primary Skill / Profession" >
+        <span class="error"><?php echo $skillErr; ?></span>
     </div>
     <div class="field">
-        <input type="text" name="location" class="input-field" placeholder="Enter your location" required>
-        <span class="error"></span>
+        <input type="text" name="location" class="input-field"  value="<?php echo htmlspecialchars($location ?? ''); ?>" placeholder="Enter your location" >
+        <span class="error"><?php echo $locationErr; ?></span>
     </div>
 </div>
 
@@ -386,34 +389,28 @@ email.addEventListener("input", () => {
         showError(email, "Invalid email format eg:example1@gmail.com");
         return;
     }
-
     clearError(email);
 });
 
-
-/* ===== PHONE ===== */
 phone.addEventListener("input", () => {
     const value = phone.value.trim();
 
-    // 1️⃣ Check if empty
     if (value === "") {
         showError(phone, "Phone number is required");
         return;
     }
 
-    // 2️⃣ Check if only numbers
     if (!/^[0-9]+$/.test(value)) {
         showError(phone, "Only numbers allowed");
         return;
     }
 
-    // 3️⃣ Check if starts with 97 or 98
     if (!/^(97|98)/.test(value)) {
         showError(phone, "Must start with 97 or 98");
         return;
     }
 
-    // 4️⃣ Check if exactly 10 digits
+   
     if (value.length !== 10) {
         showError(phone, "Must be 10 digits");
         return;
@@ -504,10 +501,8 @@ location.addEventListener("input", () => {
 
     clearError(location);
 });
-
 });
 </script>
-
 
 </body>
 </html>

@@ -1,29 +1,100 @@
 <?php
 require "dbconnection.php";
 
-$message = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$firstNameErr = "";
+$lastNameErr  = "";
+$emailErr     = "";
+$passwordErr  = "";
 
-    $first  = $_POST['first_name'];
-    $last   = $_POST['last_name'];
-    $email  = $_POST['email'];
-    $pass   = $_POST['password'];
+$hasError = false;
 
-    $name = $first . " " . $last;
+if (isset($_POST["submit"])) {
 
-    $sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $name, $email, $pass);
+    $first_name = trim($_POST["first_name"]);
+    $last_name  = trim($_POST["last_name"]);
+    $email      = trim($_POST["email"]);
+    $password   = $_POST["password"];
 
-    if ($stmt->execute()) {
-        $message = "Signup successful!";
-    } else {
-        $message = "Error: " . $stmt->error;
+    /* ===== FIRST NAME ===== */
+    if ($first_name === "") {
+        $firstNameErr = "This field cannot be empty";
+        $hasError = true;
+    } elseif (!preg_match("/^[A-Za-z ]+$/", $first_name)) {
+        $firstNameErr = "No numbers or symbols allowed";
+        $hasError = true;
+    } elseif (strlen($first_name) < 4) {
+        $firstNameErr = "Name is too short";
+        $hasError = true;
     }
 
-    $stmt->close();
+    /* ===== LAST NAME ===== */
+    if ($last_name === "") {
+        $lastNameErr = "This field cannot be empty";
+        $hasError = true;
+    } elseif (!preg_match("/^[A-Za-z ]+$/", $last_name)) {
+        $lastNameErr = "No numbers or symbols allowed";
+        $hasError = true;
+    } elseif (strlen($last_name) < 4) {
+        $lastNameErr = "Name is too short";
+        $hasError = true;
+    }
+
+    /* ===== EMAIL ===== */
+    $emailPattern = "/^[A-Za-z][A-Za-z0-9]*@[A-Za-z]+[0-9]*(\.[A-Za-z]{2,})+$/";
+
+    if ($email === "") {
+        $emailErr = "Email cannot be empty";
+        $hasError = true;
+    } elseif (!preg_match($emailPattern, $email)) {
+        $emailErr = "Invalid email format eg:example1@gmail.com";
+        $hasError = true;
+    }
+
+    /* ===== PASSWORD ===== */
+    if (strlen($password) < 8) {
+        $passwordErr = "Minimum 8 characters required";
+        $hasError = true;
+    } elseif (!preg_match("/[A-Za-z]/", $password)) {
+        $passwordErr = "At least one alphabet required";
+        $hasError = true;
+    } elseif (!preg_match("/[0-9!@#$%^&*(),.?\":{}|<>]/", $password)) {
+        $passwordErr = "At least one number or symbol required";
+        $hasError = true;
+    }
+
+    /* ===== DUPLICATE EMAIL ===== */
+    if ($hasError === false) {
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $emailErr = "Email already exists";
+            $hasError = true;
+        }
+        $stmt->close();
+    }
+
+    /* ===== INSERT ===== */
+    if ($hasError === false) {
+
+        $name = $first_name . " " . $last_name;
+
+        $stmt = $conn->prepare(
+            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
+        );
+        $stmt->bind_param("sss", $name, $email, $password);
+
+        if ($stmt->execute()) {
+            header("Location: mainlogin.php?email=" . urlencode($email));
+            exit;
+        }
+    }
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,42 +284,112 @@ button:hover {
 
     <div class="right-form">
 
-        <?php if ($message != ""): ?>
-            <p style="color:green;font-weight:600;"><?= $message ?></p>
-        <?php endif; ?>
-
+    
         <h2>Create User Account</h2>
 
-        <form method="POST">
+       <form method="POST">
 
-            <div class="name-row">
-                <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" name="first_name" required>
-                </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" name="last_name" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
-            </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" required>
-            </div>
-
-            <button type="submit">Sign Up</button>
-
-        </form>
-
+<div class="name-row">
+    <div class="form-group">
+        <label>First Name</label>
+        <input type="text" name="first_name"
+               value="<?= htmlspecialchars($first_name ?? '') ?>">
+        <small class="error"><?= $firstNameErr ?></small>
     </div>
 
+
+    <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" name="last_name"
+               value="<?= htmlspecialchars($last_name ?? '') ?>">
+        <small class="error"><?= $lastNameErr ?></small>
+    </div>
 </div>
+
+<div class="form-group">
+    <label>Email</label>
+    <input type="email" name="email"
+           value="<?= htmlspecialchars($email ?? '') ?>">
+    <small class="error"><?= $emailErr ?></small>
+</div>
+
+<div class="form-group">
+    <label>Password</label>
+    <input type="password" name="password">
+    <small class="error"><?= $passwordErr ?></small>
+</div>
+
+<button type="submit" name="submit">Sign Up</button>
+</form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+function showError(input, message) {
+    input.parentElement.querySelector(".error").textContent = message;
+}
+function clearError(input) {
+    input.parentElement.querySelector(".error").textContent = "";
+}
+
+const firstName = document.querySelector("[name='first_name']");
+const lastName  = document.querySelector("[name='last_name']");
+const email     = document.querySelector("[name='email']");
+const password  = document.querySelector("[name='password']");
+
+/* ===== NAME ===== */
+function validateName(input) {
+    const value = input.value.trim();
+
+    if (value === "") {
+        showError(input, "This field cannot be empty"); return;
+    }
+    if (!/^[A-Za-z ]+$/.test(value)) {
+        showError(input, "No numbers or symbols allowed"); return;
+    }
+    if (value.length < 4) {
+        showError(input, "Name is too short"); return;
+    }
+    clearError(input);
+}
+
+firstName.addEventListener("input", () => validateName(firstName));
+lastName.addEventListener("input", () => validateName(lastName));
+
+/* ===== EMAIL ===== */
+email.addEventListener("input", () => {
+    const value = email.value.trim();
+    const pattern = /^[A-Za-z][A-Za-z0-9]*@[A-Za-z]+[0-9]*(\.[A-Za-z]{2,})+$/;
+
+    if (value === "") {
+        showError(email, "Email cannot be empty"); return;
+    }
+    if (!pattern.test(value)) {
+        showError(email, "Invalid email format eg:example1@gmail.com"); return;
+    }
+    clearError(email);
+});
+
+/* ===== PASSWORD ===== */
+password.addEventListener("input", () => {
+    const value = password.value;
+
+    if (value.length < 8) {
+        showError(password, "Minimum 8 characters required"); return;
+    }
+    if (!/[A-Za-z]/.test(value)) {
+        showError(password, "At least one alphabet required"); return;
+    }
+    if (!/[0-9!@#$%^&*(),.?":{}|<>]/.test(value)) {
+        showError(password, "At least one number or symbol required"); return;
+    }
+    clearError(password);
+});
+});
+</script>
+
 
 </body>
 </html>
