@@ -1,41 +1,61 @@
 <?php
+session_start();
+require "dbconnection.php";
+
+/* ===== IF ALREADY LOGGED IN ===== */
+if (isset($_SESSION['user_id'])) {
+    header("Location: user_dashboard.php");
+    exit;
+}
+
 $prefillEmail = "";
+$error = "";
+
 if (isset($_GET['email'])) {
     $prefillEmail = htmlspecialchars($_GET['email']);
+
+    $email = trim($_GET['email']);
+
+    /* ===== CHECK IF EMAIL EXISTS ===== */
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows === 0) {
+        $error = "Account not found. Please create an account.";
+    } else {
+        header("Location: login_method.php?email=" . urlencode($email));
+        exit;
+    }
+    $stmt->close();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In</title>
-    
-    <link rel="stylesheet" href="../css/htm.css">
-    <link rel="stylesheet" href="../css/mainlogin.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In</title>
+
+<link rel="stylesheet" href="../css/htm.css">
+<link rel="stylesheet" href="../css/mainlogin.css">
 
 <style>
-/* ===== FORM LAYOUT FIX ===== */
-.form-box {
-    width: 100%;
-}
+.form-box { width: 100%; }
 
-/* Force vertical stacking */
 .login-form {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
-/* Match widths */
 .login-form .input-field,
 .login-form .continue-btn {
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Input styling safety (in case css file overrides) */
 .input-field {
     padding: 14px;
     border-radius: 14px;
@@ -43,7 +63,6 @@ if (isset($_GET['email'])) {
     font-size: 16px;
 }
 
-/* Button styling safety */
 .continue-btn {
     padding: 16px;
     border-radius: 999px;
@@ -59,11 +78,17 @@ if (isset($_GET['email'])) {
 .continue-btn:hover {
     background: #e56d00;
 }
+
+.error-msg {
+    color: #d63031;
+    font-size: 14px;
+    margin-top: 6px;
+}
 </style>
-
-
 </head>
+
 <body>
+
 <header class="logo-header">
     <a href="../hmt.html" class="logo">Merokala</a>
 </header>
@@ -77,25 +102,30 @@ if (isset($_GET['email'])) {
             <span>New to our site?</span>
             <a href="usignup.php" class="create-btn">Create account</a>
         </div>
-<div class="form-box">
-    <form action="login_method.php" method="GET" class="login-form">
-        <input
-            type="text"
-            name="email"
-            placeholder="Email or username"
-            class="input-field"
-            value="<?= $prefillEmail ?>"
-            required
-        >
 
-        <button type="submit" class="continue-btn">
-            Continue
-        </button>
-    </form>
-</div>
+        <div class="form-box">
+            <form method="GET" class="login-form">
+                <input
+                    type="text"
+                    name="email"
+                    placeholder="Email or username"
+                    class="input-field"
+                    value="<?= $prefillEmail ?>"
+                    required
+                >
+
+                <?php if ($error !== ""): ?>
+                    <div class="error-msg"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+
+                <button type="submit" class="continue-btn">
+                    Continue
+                </button>
+            </form>
+        </div>
 
     </div>
 </section>
-</form>
+
 </body>
 </html>
