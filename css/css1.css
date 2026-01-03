@@ -329,8 +329,65 @@ button.nav-btn:hover, .pause-btn:hover {
   width: 100%;
   height: 240px;
   background: #ddd;
-  border-radius: 1px;
+  border-radius: 8px;
+  overflow: hidden;      /* IMPORTANT */
 }
+
+.product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-img {
+  position: relative;
+}
+
+/* Favourite (heart) button */
+.fav-btn-card {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(255,255,255,0.95);
+  color: #ff7f50;              /* orange default */
+  font-size: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  opacity: 1;
+
+  transition: 
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Hover state */
+.fav-btn-card:hover {
+  background: #ff7f50;         /* orange background */
+  color: #fff;                 /* white heart */
+  transform: scale(1.08);
+  box-shadow: 0 6px 14px rgba(255,127,80,0.35);
+}
+
+/* Active (click) state – red */
+.fav-btn-card:active {
+  background: #ff4d4d;         /* red */
+  color: #fff;
+  transform: scale(0.96);
+}
+
 
 .site-footer {
   background: #111;
