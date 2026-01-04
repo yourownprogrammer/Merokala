@@ -5,7 +5,7 @@ session_start();
 
 // ---------- ADMIN AUTH CHECK ----------
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: admin_login.php");
+    header("Location: adminlogin.php");
     exit;
 }
 

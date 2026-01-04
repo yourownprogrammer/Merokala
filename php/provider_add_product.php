@@ -1,11 +1,24 @@
 <?php
-require "dbconnection.php";
 session_start();
+require "../php/dbconnection.php";
 
-/* ---------- ADMIN AUTH CHECK ---------- */
-if (!isset($_SESSION['admin_id'])) {
-    header("Location: adminlogin.php");
+/* ---------- PROVIDER AUTH CHECK ---------- */
+if (!isset($_SESSION['provider_id'])) {
+    header("Location: providersignup.php");
     exit;
+}
+
+$provider_id = (int) $_SESSION['provider_id'];
+
+/* ---------- CHECK PROVIDER STATUS ---------- */
+$stmt = $conn->prepare("SELECT status FROM providers WHERE id = ?");
+$stmt->bind_param("i", $provider_id);
+$stmt->execute();
+$provider = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$provider || $provider['status'] !== 'approved') {
+    die("Access denied. Your account is not approved to list products.");
 }
 
 /* ---------- LOAD CATEGORIES ---------- */
@@ -16,32 +29,47 @@ $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    /* ---------- BASIC VALIDATION ---------- */
+    if (empty($_POST['category_id'])) {
+        die("Category is required.");
+    }
+
     $name        = trim($_POST["name"]);
     $description = trim($_POST["description"]);
     $price       = (float) $_POST["price"];
     $category_id = (int) $_POST["category_id"];
 
     /* ---------- IMAGE UPLOAD ---------- */
-    $imageName = null;
-    if (!empty($_FILES["image"]["name"])) {
-        $ext = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
-        $imageName = uniqid("prod_") . "." . $ext;
-        move_uploaded_file(
-            $_FILES["image"]["tmp_name"],
-            "../uploads/" . $imageName
-        );
+    if (empty($_FILES["image"]["name"])) {
+        die("Product image is required.");
     }
 
-    /* ---------- INSERT PRODUCT ---------- */
+    $ext = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
+    $imageName = uniqid("prod_") . "." . $ext;
+
+    move_uploaded_file(
+        $_FILES["image"]["tmp_name"],
+        "../uploads/" . $imageName
+    );
+
+    /* ---------- INSERT PRODUCT (PENDING) ---------- */
     $stmt = $conn->prepare("
         INSERT INTO products
-        (name, description, image, price, uploaded_by, provider_id, status, created_at)
-        VALUES (?, ?, ?, ?, 'admin', NULL, 'approved', NOW())
+        (name, description, image, price, provider_id, status, created_at)
+        VALUES (?, ?, ?, ?, ?, 'pending', NOW())
     ");
-    $stmt->bind_param("sssd", $name, $description, $imageName, $price);
+    $stmt->bind_param(
+        "sssdi",
+        $name,
+        $description,
+        $imageName,
+        $price,
+        $provider_id
+    );
     $stmt->execute();
 
     $product_id = $conn->insert_id;
+    $stmt->close();
 
     /* ---------- LINK PRODUCT → CATEGORY ---------- */
     $link = $conn->prepare("
@@ -50,16 +78,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ");
     $link->bind_param("ii", $product_id, $category_id);
     $link->execute();
+    $link->close();
 
-    $message = "Product added successfully.";
+    $message = "Product submitted for admin review.";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Add Product – Admin</title>
+<title>List Product – Provider</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -85,7 +116,7 @@ input, textarea, select {
 button {
     margin-top:15px;
     padding:10px 20px;
-    background:#28a745;
+    background:#ff7a00;
     color:#fff;
     border:none;
     border-radius:6px;
@@ -99,7 +130,7 @@ button {
 </head>
 <body>
 
-<h1>Add Product (Admin)</h1>
+<h1>List Your Product</h1>
 
 <?php if ($message): ?>
 <p class="success"><?= htmlspecialchars($message) ?></p>
@@ -127,10 +158,13 @@ button {
     </select>
 
     <label>Product Image</label>
-    <input type="file" name="image" accept="image/*">
+    <input type="file" name="image" accept="image/*" required>
 
-    <button type="submit">Add Product</button>
+    <button type="submit">Submit for Review</button>
 </form>
+
+<br>
+<a href="providerdash.php">Back to Dashboard</a>
 
 </body>
 </html>

@@ -2,5 +2,5 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: /merokala/hmt.html");
+header("Location: /merokala/homepage.php");
 exit;

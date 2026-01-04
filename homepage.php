@@ -17,7 +17,7 @@ function fetchProducts($conn, $categoryId) {
             p.name,
             p.price,
             p.image,
-            p.uploaded_by,
+            p.provider_id,
             pr.first_name,
             pr.last_name
         FROM products p
@@ -141,9 +141,10 @@ function fetchProducts($conn, $categoryId) {
     <?php if ($products && $products->num_rows > 0): ?>
       <?php while ($row = $products->fetch_assoc()): ?>
         <?php
-          $uploaderName = ($row['uploaded_by'] === 'admin')
-            ? 'merokala_default'
-            : trim($row['first_name'].' '.$row['last_name']);
+         $uploaderName = is_null($row['provider_id'])
+    ? 'merokala_default'
+    : trim($row['first_name'] . ' ' . $row['last_name']);
+
         ?>
 
         <div class="product-card">

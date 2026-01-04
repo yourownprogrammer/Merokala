@@ -14,7 +14,9 @@ require "dbconnection.php";
 /* Dashboard metrics */
 $userCount = $conn->query("SELECT COUNT(*) AS total FROM users")->fetch_assoc()['total'];
 $providerCount = $conn->query("SELECT COUNT(*) AS total FROM providers")->fetch_assoc()['total'];
-// $pendingProducts = $conn->query("SELECT COUNT(*) AS total FROM provider_products WHERE status='pending'")->fetch_assoc()['total'];
+$pendingProducts = $conn->query(
+    "SELECT COUNT(*) AS total FROM products WHERE status = 'pending'"
+)->fetch_assoc()['total'];
 ?>
 <!DOCTYPE html>
 <html>
@@ -69,6 +71,7 @@ body{
     border-radius:10px;
     text-align:center;
     box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
 }
 .stat-box h4{
     margin-bottom:10px;
@@ -79,6 +82,28 @@ body{
     margin:0;
     font-weight:bold;
     color:#111;
+}
+
+/* Clickable stat */
+.stat-link{
+    text-decoration:none;
+    color:inherit;
+}
+.stat-link .stat-box{
+    cursor:pointer;
+}
+.stat-link .stat-box:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 22px rgba(0,0,0,0.12);
+}
+
+/* Alert state */
+.stat-alert p{
+    color:#d32f2f;
+}
+.stat-alert h4::after{
+    content:" •";
+    color:#d32f2f;
 }
 
 /* Admin cards */
@@ -115,10 +140,10 @@ body{
     background:#e56d00;
 }
 
-/* Footer spacing */
 .footer-space{
     height:40px;
 }
+
 </style>
 
 </head>
@@ -148,12 +173,13 @@ body{
                 <h4>Total Providers</h4>
                 <p><?php echo $providerCount; ?></p>
             </div>
-            <div class="stat-box">
-                <h4>Pending Product Approvals</h4>
+            <a href="admin_review_products.php" class="stat-link">
+    <div class="stat-box <?php echo ($pendingProducts > 0) ? 'stat-alert' : ''; ?>">
+        <h4>Pending Product Approvals</h4>
+        <p><?php echo $pendingProducts; ?></p>
+    </div>
+</a>
 
-        
-
-            </div>
         </div>
     </div>
 
