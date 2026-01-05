@@ -59,6 +59,14 @@ if ($provider['status'] === 'approved') {
           </p>';
 }
 ?>
+<hr>
+
+<h3>Actions</h3>
+
+
+<p>
+    <a href="provider_dash_history.php">📄 View Product Submission History</a>
+</p>
 
 
 <br><br>

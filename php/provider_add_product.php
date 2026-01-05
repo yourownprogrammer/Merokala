@@ -25,8 +25,6 @@ if (!$provider || $provider['status'] !== 'approved') {
 $categories = $conn->query("SELECT id, name FROM categories ORDER BY name");
 
 /* ---------- FORM SUBMIT ---------- */
-$message = "";
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     /* ---------- BASIC VALIDATION ---------- */
@@ -39,11 +37,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $price       = (float) $_POST["price"];
     $category_id = (int) $_POST["category_id"];
 
-    /* ---------- IMAGE UPLOAD ---------- */
     if (empty($_FILES["image"]["name"])) {
         die("Product image is required.");
     }
 
+    /* ---------- IMAGE UPLOAD ---------- */
     $ext = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
     $imageName = uniqid("prod_") . "." . $ext;
 
@@ -67,7 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $provider_id
     );
     $stmt->execute();
-
     $product_id = $conn->insert_id;
     $stmt->close();
 
@@ -80,7 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $link->execute();
     $link->close();
 
-    $message = "Product submitted for admin review.";
+    /* ---------- PRG FIX (IMPORTANT) ---------- */
+    header("Location: provider_add_product.php?success=1");
+    exit;
 }
 ?>
 
@@ -132,8 +131,8 @@ button {
 
 <h1>List Your Product</h1>
 
-<?php if ($message): ?>
-<p class="success"><?= htmlspecialchars($message) ?></p>
+<?php if (isset($_GET['success'])): ?>
+<p class="success">Product submitted for admin review.</p>
 <?php endif; ?>
 
 <form method="POST" enctype="multipart/form-data">

@@ -14,7 +14,7 @@ $stmt = $conn->prepare("
         p.description,
         p.price,
         p.image,
-        p.uploaded_by,
+        p.provider_id,
         pr.first_name,
         pr.last_name
     FROM products p
@@ -33,9 +33,13 @@ if ($result->num_rows === 0) {
 
 $product = $result->fetch_assoc();
 
-$uploaderName = ($product['uploaded_by'] === 'admin')
-    ? 'merokala_default'
-    : trim($product['first_name'] . ' ' . $product['last_name']);
+/* ---------- UPLOADER NAME LOGIC ---------- */
+if ($product['provider_id'] === null) {
+    // Admin-added product
+    $uploaderName = 'merokala_default';
+} else {
+    $uploaderName = trim($product['first_name'] . ' ' . $product['last_name']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,8 +55,6 @@ body {
   font-family: Arial, sans-serif;
   background: #fafafa;
 }
-
-/* Layout */
 .product-wrapper {
   display: flex;
   gap: 40px;
@@ -61,8 +63,6 @@ body {
   margin-right: auto;
   align-items: flex-start;
 }
-
-/* Image */
 .product-wrapper img {
   width: 460px;
   height: 520px;
@@ -72,8 +72,6 @@ body {
   padding: 10px;
   box-shadow: 0 18px 45px rgba(0,0,0,0.10);
 }
-
-/* Info card (AUTO HEIGHT) */
 .product-info {
   width: 460px;
   background: #fff;
@@ -82,52 +80,41 @@ body {
   border: 1px solid #f0f0f0;
   box-shadow: 0 10px 30px rgba(0,0,0,0.06);
 }
-
-/* Text */
 .product-info h1 {
   margin: 0 0 12px;
   font-size: 30px;
   line-height: 1.3;
 }
-
 .uploader {
   font-size: 14px;
   color: #888;
   margin-bottom: 18px;
 }
-
 .price {
   font-size: 26px;
   font-weight: 700;
   margin-bottom: 18px;
 }
-
 .description {
   font-size: 15px;
   line-height: 1.7;
   color: #555;
   margin-bottom: 20px;
 }
-
-/* Meta */
 .meta {
   font-size: 13px;
   color: #666;
   margin-bottom: 4px;
 }
-
 .meta-small {
   font-size: 12px;
   color: #888;
   margin-bottom: 24px;
 }
-
-/* Actions */
 .actions {
   display: flex;
   gap: 18px;
 }
-
 .actions button {
   width: 100%;
   height: 50px;
@@ -137,8 +124,6 @@ body {
   font-size: 14px;
   font-weight: 600;
 }
-
-/* Add to cart */
 .add-cart {
   background: #ff7a00;
   color: #fff;
@@ -146,8 +131,6 @@ body {
 .add-cart:hover {
   background: #e86e00;
 }
-
-/* Buy now */
 .buy-now {
   background: #111;
   color: #fff;
@@ -155,8 +138,6 @@ body {
 .buy-now:hover {
   background: #000;
 }
-
-/* Save */
 .save {
   margin-top: 18px;
   font-size: 13px;
