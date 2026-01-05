@@ -1,5 +1,26 @@
 <?php
+session_start();
 require "php/dbconnection.php";
+
+
+$cartCount = 0;
+if (!empty($_SESSION['cart'])) {
+    $cartCount = count($_SESSION['cart']);
+}
+
+/* FAVOURITES COUNT */
+$favCount = 0;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS total
+        FROM favourites
+        WHERE user_id = ?
+    ");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $favCount = $stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+}
 
 /* CATEGORY IDS */
 $categories = [
@@ -30,6 +51,7 @@ function fetchProducts($conn, $categoryId) {
     ");
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,9 +62,9 @@ function fetchProducts($conn, $categoryId) {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/htm.css">
 <link rel="stylesheet" href="css/css1.css">
+<link rel="stylesheet" href="css/product-actions.css">
 
 </head>
-
 <body>
 
 <header>
@@ -67,24 +89,69 @@ function fetchProducts($conn, $categoryId) {
       <span class="search-icon">🔍</span>
     </div>
 
-  <a href="profile.php" class="icon-wrapper">
+<a href="../merokala/php/profile_redirect.php" class="icon-wrapper">
   <span class="icon">👤</span>
   <div class="tooltip">Profile</div>
 </a>
 
-<a href="cart.php" class="icon-wrapper">
+<a href="cart.php" class="icon-wrapper" style="position:relative;">
   <span class="icon">🛒</span>
+
+  <?php if ($cartCount > 0): ?>
+    <span style="
+        position:absolute;
+        top:-6px;
+        right:-6px;
+        background:#ff7a00;
+        color:#fff;
+        font-size:11px;
+        padding:2px 6px;
+        border-radius:999px;
+        font-weight:600;
+    ">
+        <?= $cartCount ?>
+    </span>
+  <?php endif; ?>
+
   <div class="tooltip">Cart</div>
 </a>
 
-<a href="favourites.php" class="icon-wrapper">
+
+<a href="favourites.php" class="icon-wrapper" style="position:relative;">
   <span class="icon">🩷</span>
+
+  <?php if ($favCount > 0): ?>
+    <span style="
+        position:absolute;
+        top:-6px;
+        right:-6px;
+        background:#ff7a00;
+        color:#fff;
+        font-size:11px;
+        padding:2px 6px;
+        border-radius:999px;
+        font-weight:600;
+    ">
+        <?= $favCount ?>
+    </span>
+  <?php endif; ?>
+
   <div class="tooltip">Favourites</div>
 </a>
 
 
+    <?php if (!isset($_SESSION['user_id'])): ?>
+
     <a href="../merokala/php/usignup.php" class="btn">Sign In</a>
     <a href="../merokala/php/pro.php" class="sell-link">Sell</a>
+
+<?php else: ?>
+
+    <a href="../merokala/php/user_dashboard.php" class="btn">My Account</a>
+    <a href="../merokala/php/logout.php" class="sell-link">Logout</a>
+
+<?php endif; ?>
+
   </div>
 </header>
 
@@ -147,17 +214,32 @@ function fetchProducts($conn, $categoryId) {
 
         ?>
 
-        <div class="product-card">
-          <a href="product.php?id=<?= $row['id'] ?>">
-            <div class="product-img">
-              <img src="uploads/<?= htmlspecialchars($row['image']) ?>" alt="">
-              <button class="fav-btn-card" type="button">♡</button>
-            </div>
-          </a>
-          <h3><?= htmlspecialchars($row['name']) ?></h3>
-          <p><?= htmlspecialchars($uploaderName) ?></p>
-          <p>Rs. <?= number_format($row['price'],2) ?></p>
-        </div>
+       <div class="product-card">
+<div class="product-img">
+
+  <a href="product.php?id=<?= $row['id'] ?>">
+    <img src="uploads/<?= htmlspecialchars($row['image']) ?>" alt="">
+  </a>
+
+  <form method="POST" action="toggle_favourite.php">
+    <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
+    <button type="submit" class="fav-btn-card">♡</button>
+</form>
+
+
+</div>
+
+
+  <h3><?= htmlspecialchars($row['name']) ?></h3>
+  <p><?= htmlspecialchars($uploaderName) ?></p>
+  <p>Rs. <?= number_format($row['price'],2) ?></p>
+
+  <form method="POST" action="add_to_cart.php">
+    <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
+<button type="submit" class="add-to-cart-btn">Add to Cart</button>
+  </form>
+</div>
+
 
       <?php endwhile; ?>
     <?php else: ?>

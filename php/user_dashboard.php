@@ -1,5 +1,6 @@
 <?php
 session_start();
+require "../php/dbconnection.php";
 
 /* ===== AUTH GUARD ===== */
 if (!isset($_SESSION['user_id'])) {
@@ -7,87 +8,94 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userName = htmlspecialchars($_SESSION['user_name']);
+$user_id = $_SESSION['user_id'];
+$message = "";
+
+/* ===== UPDATE NAME ===== */
+if (isset($_POST['save_name'])) {
+    $new_name = trim($_POST['name']);
+
+    if (!empty($new_name)) {
+        $stmt = $conn->prepare("
+            UPDATE users 
+            SET name = ?
+            WHERE id = ?
+        ");
+        $stmt->bind_param("si", $new_name, $user_id);
+        $stmt->execute();
+        $stmt->close();
+
+        $message = "Name updated successfully.";
+    }
+}
+
+/* ===== FETCH USER ===== */
+$stmt = $conn->prepare("
+    SELECT name, email
+    FROM users
+    WHERE id = ?
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+$userName  = htmlspecialchars($user['name']);
+$userEmail = htmlspecialchars($user['email']);
+
+$editMode = isset($_GET['edit']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard</title>
 
-    <link rel="stylesheet" href="../css/htm.css">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #fafafa;
-            margin: 0;
-        }
-
-        .dashboard {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 40px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-
-        h1 {
-            margin-top: 0;
-            font-size: 28px;
-            color: #333;
-        }
-
-        p {
-            font-size: 16px;
-            color: #555;
-        }
-
-        .logout-btn {
-            margin-top: 25px;
-            padding: 14px 28px;
-            background: #ff7a00;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: 0.2s;
-        }
-
-        .logout-btn:hover {
-            background: #e56d00;
-        }
-    </style>
+<link rel="stylesheet" href="../css/htm.css">
 </head>
 
 <body>
 
 <header class="logo-header">
-    <a href="../hmt.html" class="logo">Merokala</a>
+    <a href="../homepage.php" class="logo">Merokala</a>
 </header>
 
-<div class="dashboard">
-    <h1>Welcome, <?= $userName ?> 👋</h1>
+<main class="dashboard">
 
-    <p>
-        You are successfully logged in as a user.
-    </p>
+    <h1>Welcome, <?= $userName ?></h1>
 
-    <p>
-        This is your dashboard. From here you can explore services,
-        manage your account, and place orders.
-    </p>
+    <section class="profile">
 
-    <a href="logout.php" class="logout-btn">
-        Logout
-    </a>
-</div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" value="<?= $userEmail ?>" disabled>
+            <small>Email cannot be changed once registered.</small>
+        </div>
+
+        <div class="field">
+            <label>Name</label>
+
+            <?php if ($editMode): ?>
+                <form method="POST">
+                    <input type="text" name="name" value="<?= $userName ?>" required>
+                    <button type="submit" name="save_name">Save</button>
+                </form>
+            <?php else: ?>
+                <input type="text" value="<?= $userName ?>" disabled>
+                <a href="?edit=1">Edit Name</a>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($message): ?>
+            <p class="success"><?= $message ?></p>
+        <?php endif; ?>
+
+    </section>
+
+    <a href="logout.php">Logout</a>
+
+</main>
 
 </body>
 </html>
