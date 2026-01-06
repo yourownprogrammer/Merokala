@@ -2,6 +2,8 @@
 session_start();
 require "php/dbconnection.php";
 
+$isUser     = isset($_SESSION['user_id']);
+$isProvider = isset($_SESSION['provider_id']);
 
 $cartCount = 0;
 if (!empty($_SESSION['cart'])) {
@@ -84,10 +86,25 @@ function fetchProducts($conn, $categoryId) {
   </nav>
 
   <div class="nav-right">
-    <div class="search-wrapper">
-      <input type="text" class="search-bar" placeholder="Search...">
-      <span class="search-icon">🔍</span>
+
+
+<form class="search-wrapper" onsubmit="return false;">
+    <div class="search-input-container">
+        <input
+            type="text"
+            id="searchInput"
+            class="search-bar"
+            placeholder="Search..."
+            spellcheck="false"
+        >
+        <span class="search-icon">🔍</span>
     </div>
+
+    <div id="searchResults" class="search-results"></div>
+</form>
+
+
+
 
 <a href="../merokala/php/profile_redirect.php" class="icon-wrapper">
   <span class="icon">👤</span>
@@ -154,6 +171,8 @@ function fetchProducts($conn, $categoryId) {
 
   </div>
 </header>
+
+
 
 <div id="overlay"></div>
 
@@ -284,13 +303,14 @@ function fetchProducts($conn, $categoryId) {
   </div>
 
   <div class="footer-bottom">
-    <p>&copy; 2025 Merokala</p>
+    <p>&copy; 2026 Merokala</p>
   </div>
 </footer>
 
 <script src="js/caurosel.js"></script>
 <script src="js/dropdown.js"></script>
 <script src="js/leftright.js"></script>
+<script src="js/suggestion.js"></script>
 
 </body>
 </html>

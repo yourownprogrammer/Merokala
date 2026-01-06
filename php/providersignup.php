@@ -90,7 +90,7 @@ if (isset($_GET['email'])) {
 <body>
 
 <header class="logo-header">
-    <a href="../hmt.html">Merokala</a>
+    <a href="../homepage.php">Merokala</a>
 </header>
 
 <div class="seller-box">
@@ -98,7 +98,7 @@ if (isset($_GET['email'])) {
     <h2>Seller Login</h2>
     <p>Access your provider dashboard</p>
 
-    <form method="POST" action="providersignup.php">
+    <form method="POST" action="">
 
   <input
     type="text"

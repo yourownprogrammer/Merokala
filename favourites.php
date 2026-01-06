@@ -2,13 +2,20 @@
 session_start();
 require "php/dbconnection.php";
 
+/* ---------- AUTH CHECK ---------- */
 if (!isset($_SESSION['user_id'])) {
     header("Location: php/mainlogin.php");
     exit;
 }
 
+/* ---------- CART INIT ---------- */
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+
 $user_id = $_SESSION['user_id'];
 
+/* ---------- FETCH FAVOURITES ---------- */
 $stmt = $conn->prepare("
     SELECT p.id, p.name, p.price, p.image
     FROM favourites f
@@ -47,7 +54,7 @@ $stmt->close();
     font-weight: 600;
 }
 
-/* Table styling */
+/* Table */
 .fav-page table {
     width: 100%;
     border-collapse: collapse;
@@ -58,7 +65,6 @@ $stmt->close();
     text-align: left;
     padding: 14px;
     background: #f5f5f5;
-    font-weight: 600;
     border-bottom: 1px solid #ddd;
 }
 
@@ -80,7 +86,27 @@ $stmt->close();
     border-radius: 6px;
 }
 
-/* Remove button */
+/* Buttons */
+.action-wrap {
+    display: flex;
+    gap: 10px;
+}
+
+.cart-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: #222;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cart-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
 .remove-btn {
     padding: 8px 16px;
     border-radius: 6px;
@@ -95,7 +121,6 @@ $stmt->close();
     background: #e56d00;
 }
 
-/* Empty state */
 .empty-msg {
     margin-top: 30px;
     font-size: 16px;
@@ -126,6 +151,8 @@ $stmt->close();
     </tr>
 
     <?php while ($row = $result->fetch_assoc()): ?>
+    <?php $inCart = isset($_SESSION['cart'][$row['id']]); ?>
+
     <tr>
         <td>
             <div class="fav-product">
@@ -137,10 +164,23 @@ $stmt->close();
         <td>Rs. <?= number_format($row['price'], 2) ?></td>
 
         <td>
-            <form method="POST" action="toggle_favourite.php">
-                <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
-                <button type="submit" class="remove-btn">Remove</button>
-            </form>
+            <div class="action-wrap">
+
+                <!-- ADD TO CART -->
+                <form method="POST" action="add_to_cart.php">
+                    <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
+                    <button type="submit" class="cart-btn" <?= $inCart ? 'disabled' : '' ?>>
+                        <?= $inCart ? 'In Cart' : 'Add to Cart' ?>
+                    </button>
+                </form>
+
+                <!-- REMOVE FAVOURITE -->
+                <form method="POST" action="toggle_favourite.php">
+                    <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
+                    <button type="submit" class="remove-btn">Remove</button>
+                </form>
+
+            </div>
         </td>
     </tr>
     <?php endwhile; ?>
