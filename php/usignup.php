@@ -1,6 +1,14 @@
 <?php
 require "dbconnection.php";
 
+function customPasswordHash($password) {
+    $hash = 0;
+    for ($i = 0; $i < strlen($password); $i++) {
+        $hash = ($hash * 31) + ord($password[$i]);
+    }
+    return $hash;
+}
+
 $firstNameErr = "";
 $lastNameErr  = "";
 $emailErr     = "";
@@ -81,10 +89,13 @@ if (isset($_POST["submit"])) {
 
         $name = $first_name . " " . $last_name;
 
-        $stmt = $conn->prepare(
-            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
-        );
-        $stmt->bind_param("sss", $name, $email, $password);
+        $hashedPassword = customPasswordHash($password);
+
+$stmt = $conn->prepare(
+    "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)"
+);
+$stmt->bind_param("sss", $name, $email, $hashedPassword);
+
 
         if ($stmt->execute()) {
             header("Location: mainlogin.php?email=" . urlencode($email));

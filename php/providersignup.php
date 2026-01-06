@@ -6,6 +6,15 @@ if ($conn->connect_error) {
     die("Connection failed");
 }
 
+/* ===== PASSWORD HASH FUNCTION ===== */
+function customPasswordHash($password) {
+    $hash = 0;
+    for ($i = 0; $i < strlen($password); $i++) {
+        $hash = ($hash * 31) + ord($password[$i]);
+    }
+    return $hash;
+}
+
 $emailErr = "";
 $passwordErr = "";
 $loginErr = "";
@@ -28,25 +37,23 @@ if (isset($_POST['login'])) {
     // IF NO BASIC ERRORS
     if ($emailErr === "" && $passwordErr === "") {
 
+        $hashedInput = customPasswordHash($password);
+
         $stmt = $conn->prepare(
-            "SELECT id, password_plain FROM providers WHERE email = ?"
+            "SELECT id, password_hash FROM providers WHERE email = ?"
         );
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // EMAIL NOT FOUND
         if ($result->num_rows === 0) {
             $loginErr = "Invalid email or password";
         } else {
             $user = $result->fetch_assoc();
 
-            // ⚠️ TEMP PLAIN PASSWORD CHECK
-            // (later replace with password_verify)
-            if ($password !== $user['password_plain']) {
+if ($hashedInput != $user['password_hash']) {
                 $loginErr = "Invalid email or password";
             } else {
-                // LOGIN SUCCESS
                 $_SESSION['provider_id'] = $user['id'];
                 header("Location: providerdash.php");
                 exit;
@@ -55,6 +62,7 @@ if (isset($_POST['login'])) {
     }
 }
 ?>
+
 <?php
 $prefillEmail = "";
 

@@ -5,6 +5,14 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+function customPasswordHash($password) {
+    $hash = 0;
+    for ($i = 0; $i < strlen($password); $i++) {
+        $hash = ($hash * 31) + ord($password[$i]);
+    }
+    return $hash;
+}
+
 $firstNameErr = "";
 $lastNameErr  = "";
 $emailErr     = "";
@@ -135,22 +143,25 @@ if ($location === "") {
     if ($hasError === false) {
 
         // TEMP plain password (hash later)
-        $stmt = $conn->prepare(
-            "INSERT INTO providers
-            (first_name, last_name, email, phone, password_plain, primary_skill, location)
-            VALUES (?, ?, ?, ?, ?, ?, ?)"
-        );
+     $hashedPassword = customPasswordHash($password);
 
-        $stmt->bind_param(
-            "sssssss",
-            $first_name,
-            $last_name,
-            $email,
-            $phone,
-            $password,
-            $skill,
-            $location
-        );
+$stmt = $conn->prepare(
+    "INSERT INTO providers
+    (first_name, last_name, email, phone, password_hash, primary_skill, location)
+    VALUES (?, ?, ?, ?, ?, ?, ?)"
+);
+
+$stmt->bind_param(
+    "sssssss",
+    $first_name,
+    $last_name,
+    $email,
+    $phone,
+    $hashedPassword,
+    $skill,
+    $location
+);
+
 
         if ($stmt->execute()) {
            header("Location: providersignup.php?email=" . urlencode($email));
