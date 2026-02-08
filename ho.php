@@ -358,6 +358,7 @@ $uploaderName = is_null($row['provider_id'])
 
   <div class="footer-bottom">
     <p>&copy; 2026 Merokala</p>
+    <p>created by Abhishek and Ramit</p>
   </div>
 </footer>
 
