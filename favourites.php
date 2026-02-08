@@ -134,7 +134,7 @@ $stmt->close();
 
 <div class="fav-header">
     <h1>Your Favourites</h1>
-    <a href="homepage.php">← Back to Homepage</a>
+    <a href="ho.php">← Back to Homepage</a>
 </div>
 
 <?php if ($result->num_rows === 0): ?>

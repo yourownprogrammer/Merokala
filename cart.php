@@ -108,7 +108,7 @@ $cart = $_SESSION['cart'] ?? [];
 
 <header class="cart-header">
   <div class="logo">Merokala</div>
-  <a href="homepage.php">← Continue Shopping</a>
+  <a href="ho.php">← Continue Shopping</a>
 </header>
 
 <main class="cart-page">
@@ -127,7 +127,7 @@ $cart = $_SESSION['cart'] ?? [];
     </tr>
 
     <?php $total = 0; ?>
-    <?php foreach ($cart as $item): ?>
+    <?php foreach ($cart as $product_id => $item): ?>
         <?php $total += $item['price']; ?>
         <tr>
             <td>
@@ -139,7 +139,7 @@ $cart = $_SESSION['cart'] ?? [];
             <td>Rs. <?= number_format($item['price'], 2) ?></td>
             <td>
                 <form method="POST" action="remove_from_cart.php">
-                    <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
+                    <input type="hidden" name="product_id" value="<?= (int)$product_id ?>">
                     <button type="submit">Remove</button>
                 </form>
             </td>
@@ -151,6 +151,7 @@ $cart = $_SESSION['cart'] ?? [];
         <td colspan="2">Rs. <?= number_format($total, 2) ?></td>
     </tr>
 </table>
+
 
 
 <div style="margin-top: 30px; text-align: right;">

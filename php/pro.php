@@ -263,7 +263,7 @@ html, body {  height: 100%; margin: 0; overflow-y: auto; font-family: Arial, san
 <body>
 
 <header class="logo-header">
-    <a href="../hmt.html">Merokala</a>
+    <a href="../ho.php">Merokala</a>
 </header>
 
 <div class="page-wrapper">

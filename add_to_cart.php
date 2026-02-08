@@ -36,7 +36,12 @@ if (!isset($_SESSION['cart'])) {
 }
 
 /* Add product (no quantity logic) */
-$_SESSION['cart'][$product_id] = $product;
+$_SESSION['cart'][$product_id] = [
+    'product_id' => $product['id'],   // REQUIRED for checkout
+    'name'       => $product['name'],
+    'price'      => $product['price'],
+    'image'      => $product['image']
+];
 
 header("Location: cart.php");
 exit;

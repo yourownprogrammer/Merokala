@@ -17,6 +17,12 @@ $providerCount = $conn->query("SELECT COUNT(*) AS total FROM providers")->fetch_
 $pendingProducts = $conn->query(
     "SELECT COUNT(*) AS total FROM products WHERE status = 'pending'"
 )->fetch_assoc()['total'];
+
+$pendingOrders = $conn->query(
+    "SELECT COUNT(*) AS total FROM orders WHERE order_status = 'Pending'"
+)->fetch_assoc()['total'];
+
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -211,6 +217,11 @@ body{
                 <p>Add and manage products directly uploaded by the admin for demonstration and platform use.</p>
                 <a href="admin_add_products.php">Manage Products</a>
             </div>
+<div class="card">
+    <h4>Manage Orders</h4>
+    <p>Review customer orders and accept or reject them before processing.</p>
+    <a href="admin_orders.php">View Orders</a>
+</div>
 
         </div>
     </div>

@@ -120,11 +120,11 @@ function mergeByPrice($left, $right) {
     <div class="dropdown">
       <a href="#" class="dropbtn">🟰 Categories</a>
       <ul class="dropdown-content">
-        <li><a href="#">Accessories</a></li>
-        <li><a href="#">Art & Collectibles</a></li>
-        <li><a href="#">Baby</a></li>
-        <li><a href="#">Bags & Purses</a></li>
-        <li><a href="#">Bath & Beauty</a></li>
+        <li><a href="#">Canvas and Craft</a></li>
+        <li><a href="#">Art and Craft</a></li>
+        <li><a href="#">Sewing and Crochet</a></li>
+        <li><a href="#">Jewellery and Accessories</a></li>
+        <li><a href="#">Handcrafted solids</a></li>
       </ul>
     </div>
   </nav>
@@ -184,7 +184,8 @@ function mergeByPrice($left, $right) {
       <div class="slide-text">
         <h1>Find Handmade Creations & Authentic Products</h1>
         <p>Discover unique art and support independent creators from Nepal.</p>
-        <button class="btn">Shop Now</button>
+        <a href="../merokala/php/usignup.php">
+        <button class="btn">Shop Now</button> </a>
       </div>
     </div>
 
@@ -192,7 +193,8 @@ function mergeByPrice($left, $right) {
       <div class="slide-text">
         <h1>List Your Products</h1>
         <p>Join our community of artists and sell your handmade creations.</p>
-        <button class="btn">Start Listing</button>
+        <a href="../merokala/php/pro.php">
+        <button class="btn">Start Listing</button></a>
       </div>
     </div>
 
