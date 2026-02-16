@@ -7,6 +7,14 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
+$flashMsg = '';
+$flashOrderId = (int)($_GET['order_id'] ?? 0);
+$flashType = $_GET['msg'] ?? '';
+if ($flashOrderId > 0 && in_array($flashType, ['approved', 'rejected'])) {
+    $verb = ($flashType === 'approved') ? 'approved' : 'rejected';
+    $flashMsg = "Order #{$flashOrderId} {$verb} successfully.";
+}
+
 $result = $conn->query("
     SELECT id, user_id, total, order_status
     FROM orders
@@ -22,11 +30,19 @@ $result = $conn->query("
 table { width:100%; border-collapse:collapse; }
 th, td { padding:10px; border:1px solid #ddd; }
 button { padding:6px 12px; margin-right:6px; cursor:pointer; }
+.msg-success { background:#d4edda; color:#155724; padding:12px 16px; border-radius:6px; margin-bottom:20px; }
+.msg-success span { font-weight:600; }
+.action-done { color:#28a745; font-weight:600; }
+.action-done-rejected { color:#dc3545; font-weight:600; }
 </style>
 </head>
 <body>
 
 <h2>Orders</h2>
+
+<?php if ($flashMsg): ?>
+<div class="msg-success"><span><?= htmlspecialchars($flashMsg) ?></span></div>
+<?php endif; ?>
 
 <table>
 <tr>
@@ -56,11 +72,11 @@ if ($status === '') {
         <?php if ($status === 'pending'): ?>
             <form method="POST" action="update_order_status.php">
                 <input type="hidden" name="order_id" value="<?= $row['id'] ?>">
-                <button type="submit" name="status" value="accepted">Accept</button>
+                <button type="submit" name="status" value="approved">Accept</button>
                 <button type="submit" name="status" value="rejected">Reject</button>
             </form>
         <?php else: ?>
-            —
+            <span class="<?= $status === 'rejected' ? 'action-done-rejected' : 'action-done' ?>">Action completed</span>
         <?php endif; ?>
     </td>
 </tr>

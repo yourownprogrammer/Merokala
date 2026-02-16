@@ -19,7 +19,7 @@ $pendingProducts = $conn->query(
 )->fetch_assoc()['total'];
 
 $pendingOrders = $conn->query(
-    "SELECT COUNT(*) AS total FROM orders WHERE order_status = 'Pending'"
+    "SELECT COUNT(*) AS total FROM orders WHERE order_status = 'pending'"
 )->fetch_assoc()['total'];
 
 

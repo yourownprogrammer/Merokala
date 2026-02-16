@@ -1,6 +1,6 @@
 <?php
-require "php/dbconnection.php";
 session_start();
+require "php/dbconnection.php";
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("Invalid product");
@@ -138,11 +138,16 @@ body {
 .buy-now:hover {
   background: #000;
 }
-.save {
+.save-form {
   margin-top: 18px;
+}
+.save {
+  background: none;
+  border: none;
   font-size: 13px;
   color: #aaa;
   cursor: pointer;
+  padding: 0;
 }
 .save:hover {
   color: #c0392b;
@@ -152,10 +157,15 @@ body {
 
 <body>
 
+<header style="display:flex;align-items:center;padding:15px 40px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:20px;">
+    <a href="homepage.php" style="font-size:24px;font-weight:700;color:#ff7a00;text-decoration:none;">Merokala</a>
+    <a href="homepage.php" style="margin-left:20px;color:#666;text-decoration:none;">← Back</a>
+</header>
 <div class="product-wrapper">
 
-  <img src="uploads/<?= htmlspecialchars($product['image']) ?>"
-       alt="<?= htmlspecialchars($product['name']) ?>">
+  <img src="<?= !empty($product['image']) ? 'uploads/' . htmlspecialchars($product['image']) : 'pics/one.png' ?>"
+       alt="<?= htmlspecialchars($product['name']) ?>"
+       onerror="this.src='pics/one.png'">
 
   <div class="product-info">
 
@@ -174,15 +184,21 @@ body {
     <div class="actions">
       <form action="add_to_cart.php" method="POST" style="flex:1;">
         <input type="hidden" name="product_id" value="<?= $product_id ?>">
+        <input type="hidden" name="return_url" value="product.php?id=<?= $product_id ?>">
         <button type="submit" class="add-cart">Add to Cart</button>
       </form>
 
-      <a href="checkout.php?buy_now=<?= $product_id ?>" style="flex:1; text-decoration:none;">
-        <button type="button" class="buy-now">Buy Now</button>
-      </a>
+      <form action="add_to_cart.php" method="POST" style="flex:1;">
+        <input type="hidden" name="product_id" value="<?= $product_id ?>">
+        <input type="hidden" name="buy_now" value="1">
+        <button type="submit" class="buy-now">Buy Now</button>
+      </form>
     </div>
 
-    <div class="save">♡ Save to favourites</div>
+    <form method="POST" action="toggle_favourite.php" class="save-form">
+      <input type="hidden" name="product_id" value="<?= $product_id ?>">
+      <button type="submit" class="save">♡ Save to favourites</button>
+    </form>
 
   </div>
 

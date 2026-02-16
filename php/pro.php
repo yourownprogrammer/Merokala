@@ -1,9 +1,5 @@
 <?php
-
-$conn = new mysqli("localhost", "root", "", "merokalaa");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require "dbconnection.php";
 
 function customPasswordHash($password) {
     $hash = 0;
@@ -263,7 +259,7 @@ html, body {  height: 100%; margin: 0; overflow-y: auto; font-family: Arial, san
 <body>
 
 <header class="logo-header">
-    <a href="../ho.php">Merokala</a>
+    <a href="../homepage.php">Merokala</a>
 </header>
 
 <div class="page-wrapper">

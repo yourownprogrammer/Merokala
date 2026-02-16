@@ -90,7 +90,7 @@ if (isset($_GET['email'])) {
 <body>
 
 <header class="logo-header">
-    <a href="../hmt.html" class="logo">Merokala</a>
+    <a href="../homepage.php" class="logo">Merokala</a>
 </header>
 
 <section class="login-area">

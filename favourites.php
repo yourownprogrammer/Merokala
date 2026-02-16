@@ -130,11 +130,14 @@ $stmt->close();
 
 <body>
 
+<header style="display:flex;align-items:center;justify-content:space-between;padding:15px 40px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <a href="homepage.php" style="font-size:24px;font-weight:700;color:#ff7a00;text-decoration:none;">Merokala</a>
+</header>
 <main class="fav-page">
 
 <div class="fav-header">
     <h1>Your Favourites</h1>
-    <a href="ho.php">← Back to Homepage</a>
+    <a href="homepage.php">← Back to Homepage</a>
 </div>
 
 <?php if ($result->num_rows === 0): ?>

@@ -134,7 +134,7 @@ if (isset($_GET['email'])) {
     </div>
 
     <div class="small-text" style="margin-top: 6px;">
-        New provider? <a href="providerregister.php">Create provider account</a>
+        New provider? <a href="pro.php">Create provider account</a>
     </div>
 </div>
 

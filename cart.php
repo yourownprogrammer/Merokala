@@ -107,8 +107,8 @@ $cart = $_SESSION['cart'] ?? [];
 <body>
 
 <header class="cart-header">
-  <div class="logo">Merokala</div>
-  <a href="ho.php">← Continue Shopping</a>
+  <div class="logo"><a href="homepage.php">Merokala</a></div>
+  <a href="homepage.php">← Continue Shopping</a>
 </header>
 
 <main class="cart-page">

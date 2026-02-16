@@ -285,7 +285,7 @@ button:hover {
 <body>
 
 <div class="top-header">
-    <div class="logo" onclick="window.location.href='../ho.php'">Merokala</div>
+    <div class="logo" onclick="window.location.href='../homepage.php'">Merokala</div>
     <div class="login-link">Already have an account? <a href="mainlogin.php">Login</a></div>
 </div>
 

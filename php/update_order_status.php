@@ -13,7 +13,7 @@ if ($order_id <= 0) {
     exit;
 }
 
-if ($status !== 'accepted' && $status !== 'rejected') {
+if ($status !== 'approved' && $status !== 'rejected') {
     exit;
 }
 
@@ -22,5 +22,6 @@ $stmt->bind_param("si", $status, $order_id);
 $stmt->execute();
 $stmt->close();
 
-header("Location: admin_orders.php");
+$msg = ($status === 'approved') ? 'approved' : 'rejected';
+header("Location: admin_orders.php?msg={$msg}&order_id={$order_id}");
 exit;

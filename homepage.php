@@ -24,16 +24,20 @@ if (isset($_SESSION['user_id'])) {
     $stmt->close();
 }
 
-/* CATEGORY IDS */
-$categories = [
-    1 => "Canvas and Craft",
-    2 => "Art and Craft",
-    3 => "Sewing and Crochet",
-    4 => "Jewellery and Accessories",
-    5 => "Handcrafted solids"
-];
+/* CATEGORIES - fetch from DB for dynamic management */
+$categories = [];
+$catRes = $conn->query("SELECT id, name FROM categories ORDER BY name");
+if ($catRes && $catRes->num_rows > 0) {
+    while ($row = $catRes->fetch_assoc()) {
+        $categories[$row['id']] = $row['name'];
+    }
+}
+if (empty($categories)) {
+    $categories = [1 => "Canvas and Craft", 2 => "Art and Craft", 3 => "Sewing and Crochet", 4 => "Jewellery and Accessories", 5 => "Handcrafted solids"];
+}
 
 function fetchProducts($conn, $categoryId) {
+    $cid = (int) $categoryId;
     return $conn->query("
         SELECT 
             p.id,
@@ -46,7 +50,7 @@ function fetchProducts($conn, $categoryId) {
         FROM products p
         JOIN product_categories pc ON p.id = pc.product_id
         LEFT JOIN providers pr ON p.provider_id = pr.id
-        WHERE pc.category_id = $categoryId
+        WHERE pc.category_id = $cid
           AND p.status = 'approved'
         ORDER BY p.created_at DESC
         LIMIT 6
@@ -76,11 +80,9 @@ function fetchProducts($conn, $categoryId) {
     <div class="dropdown">
       <a href="#" class="dropbtn">🟰 Categories</a>
       <ul class="dropdown-content">
-        <li><a href="#">Accessories</a></li>
-        <li><a href="#">Art & Collectibles</a></li>
-        <li><a href="#">Baby</a></li>
-        <li><a href="#">Bags & Purses</a></li>
-        <li><a href="#">Bath & Beauty</a></li>
+        <?php foreach ($categories as $cid => $cname): ?>
+        <li><a href="search.php?category=<?= (int)$cid ?>"><?= htmlspecialchars($cname) ?></a></li>
+        <?php endforeach; ?>
       </ul>
     </div>
   </nav>
@@ -106,7 +108,7 @@ function fetchProducts($conn, $categoryId) {
 
 
 
-<a href="../merokala/php/profile_redirect.php" class="icon-wrapper">
+<a href="php/profile_redirect.php" class="icon-wrapper">
   <span class="icon">👤</span>
   <div class="tooltip">Profile</div>
 </a>
@@ -159,13 +161,13 @@ function fetchProducts($conn, $categoryId) {
 
     <?php if (!isset($_SESSION['user_id'])): ?>
 
-    <a href="../merokala/php/usignup.php" class="btn">Sign In</a>
-    <a href="../merokala/php/pro.php" class="sell-link">Sell</a>
+    <a href="php/usignup.php" class="btn">Sign In</a>
+    <a href="php/pro.php" class="sell-link">Sell</a>
 
 <?php else: ?>
 
-    <a href="../merokala/php/user_dashboard.php" class="btn">My Account</a>
-    <a href="../merokala/php/logout.php" class="sell-link">Logout</a>
+    <a href="php/user_dashboard.php" class="btn">My Account</a>
+    <a href="php/logout.php" class="sell-link">Logout</a>
 
 <?php endif; ?>
 

@@ -37,11 +37,21 @@ if (!isset($_SESSION['cart'])) {
 
 /* Add product (no quantity logic) */
 $_SESSION['cart'][$product_id] = [
-    'product_id' => $product['id'],   // REQUIRED for checkout
+    'product_id' => $product['id'],
     'name'       => $product['name'],
     'price'      => $product['price'],
     'image'      => $product['image']
 ];
 
-header("Location: cart.php");
+/* Redirect: Buy Now -> checkout, return_url -> back, else -> cart */
+$returnUrl = $_POST['return_url'] ?? null;
+$buyNow = !empty($_POST['buy_now']);
+
+if ($buyNow) {
+    header("Location: checkout.php");
+} elseif ($returnUrl && preg_match('/^(product\.php|homepage\.php|ho\.php)(\?[a-z0-9=&]+)?$/i', $returnUrl)) {
+    header("Location: " . $returnUrl);
+} else {
+    header("Location: cart.php");
+}
 exit;
