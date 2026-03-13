@@ -36,7 +36,7 @@ if (isset($_GET['email'])) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In</title>
+<title>Sign In | Merokala</title>
 
 <link rel="stylesheet" href="../css/htm.css">
 <link rel="stylesheet" href="../css/mainlogin.css">
@@ -59,7 +59,7 @@ if (isset($_GET['email'])) {
 .input-field {
     padding: 14px;
     border-radius: 14px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     font-size: 16px;
 }
 
