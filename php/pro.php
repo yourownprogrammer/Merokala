@@ -288,7 +288,7 @@ html, body {  height: 100%; margin: 0; overflow-y: auto; font-family: Arial, san
 
     </div>
     <div class="field">
-        <input type="text" name="number" class="input-field"  value="<?php echo htmlspecialchars($phone ?? ''); ?>" placeholder="Phone number" >
+        <input type="text" name="number" class="input-field" value="<?php echo htmlspecialchars($phone ?? ''); ?>" placeholder="Phone number" maxlength="10">
         <span class="error"><?php echo $phoneErr; ?></span>
     </div>
 </div>
