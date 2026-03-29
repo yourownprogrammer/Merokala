@@ -40,6 +40,88 @@ if ($product['provider_id'] === null) {
 } else {
     $uploaderName = trim($product['first_name'] . ' ' . $product['last_name']);
 }
+
+/* ---------- OWN-WRITTEN RECOMMENDATION ALGORITHM ---------- */
+function tokenize_text($text)
+{
+    $text = strtolower((string) $text);
+    $clean = preg_replace('/[^a-z0-9\s]/', ' ', $text);
+    $parts = preg_split('/\s+/', trim($clean));
+    $stopwords = [
+        'the', 'and', 'for', 'with', 'this', 'that', 'from', 'your', 'you',
+        'are', 'was', 'were', 'have', 'has', 'had', 'not', 'but', 'too',
+        'very', 'new', 'best', 'made', 'handmade', 'one', 'kind'
+    ];
+
+    $tokens = [];
+    foreach ($parts as $part) {
+        if (strlen($part) < 3 || in_array($part, $stopwords, true)) {
+            continue;
+        }
+        $tokens[] = $part;
+    }
+
+    return array_values(array_unique($tokens));
+}
+
+function get_recommendation_score($currentProduct, $candidateProduct)
+{
+    $currentTokens = tokenize_text($currentProduct['name'] . ' ' . $currentProduct['description']);
+    $candidateTokens = tokenize_text($candidateProduct['name'] . ' ' . $candidateProduct['description']);
+
+    $overlap = array_intersect($currentTokens, $candidateTokens);
+    $keywordScore = count($overlap) * 14;
+
+    $currentPrice = (float) $currentProduct['price'];
+    $candidatePrice = (float) $candidateProduct['price'];
+    $priceDiff = abs($currentPrice - $candidatePrice);
+    $priceBase = max($currentPrice, 1);
+    $priceRatio = $priceDiff / $priceBase;
+
+    // Closer price range gets higher points.
+    $priceScore = max(0, 30 - ($priceRatio * 30));
+
+    $providerScore = 0;
+    if ($currentProduct['provider_id'] !== null && $candidateProduct['provider_id'] !== null) {
+        if ((int) $currentProduct['provider_id'] === (int) $candidateProduct['provider_id']) {
+            $providerScore = 10;
+        }
+    }
+
+    $descriptionLengthScore = 0;
+    if (strlen((string) $candidateProduct['description']) >= 50) {
+        $descriptionLengthScore = 4;
+    }
+
+    return $keywordScore + $priceScore + $providerScore + $descriptionLengthScore;
+}
+
+$recommendedProducts = [];
+$recommendStmt = $conn->prepare("
+    SELECT id, name, description, price, image, provider_id
+    FROM products
+    WHERE status = 'approved'
+      AND id != ?
+    LIMIT 80
+");
+$recommendStmt->bind_param("i", $product_id);
+$recommendStmt->execute();
+$recommendResult = $recommendStmt->get_result();
+
+$scoredProducts = [];
+while ($candidate = $recommendResult->fetch_assoc()) {
+    $candidate['score'] = get_recommendation_score($product, $candidate);
+    $scoredProducts[] = $candidate;
+}
+
+usort($scoredProducts, function ($a, $b) {
+    if ($a['score'] === $b['score']) {
+        return (float) $a['price'] <=> (float) $b['price'];
+    }
+    return $b['score'] <=> $a['score'];
+});
+
+$recommendedProducts = array_slice($scoredProducts, 0, 4);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -152,6 +234,86 @@ body {
 .save:hover {
   color: #c0392b;
 }
+.recommended-section {
+  max-width: 1200px;
+  margin: 38px 60px 0;
+}
+.recommended-title {
+  font-size: 24px;
+  margin: 0 0 16px;
+}
+.recommended-subtitle {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 14px;
+}
+.recommended-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.recommended-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  border: 1px solid #efefef;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.recommended-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.09);
+}
+.recommended-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f3f3f3;
+}
+.recommended-name {
+  margin: 10px 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.recommended-price {
+  margin: 0;
+  color: #222;
+  font-size: 14px;
+  font-weight: 600;
+}
+@media (max-width: 1080px) {
+  .product-wrapper {
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+  .recommended-section {
+    margin: 32px 24px 0;
+  }
+  .recommended-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  body {
+    padding: 18px 0 28px;
+  }
+  .product-wrapper {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .product-wrapper img,
+  .product-info {
+    width: 100%;
+  }
+  .recommended-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 
@@ -203,6 +365,27 @@ body {
   </div>
 
 </div>
+
+<?php if (!empty($recommendedProducts)): ?>
+<section class="recommended-section">
+  <h2 class="recommended-title">Recommended Products</h2>
+  <p class="recommended-subtitle">Calculated using keyword similarity and price closeness.</p>
+
+  <div class="recommended-grid">
+    <?php foreach ($recommendedProducts as $recommended): ?>
+      <a class="recommended-card" href="product.php?id=<?= (int) $recommended['id'] ?>">
+        <img
+          src="<?= !empty($recommended['image']) ? 'uploads/' . htmlspecialchars($recommended['image']) : 'pics/one.png' ?>"
+          alt="<?= htmlspecialchars($recommended['name']) ?>"
+          onerror="this.src='pics/one.png'"
+        >
+        <p class="recommended-name"><?= htmlspecialchars(ucwords($recommended['name'])) ?></p>
+        <p class="recommended-price">Rs. <?= number_format((float) $recommended['price'], 2) ?></p>
+      </a>
+    <?php endforeach; ?>
+  </div>
+</section>
+<?php endif; ?>
 
 </body>
 </html>

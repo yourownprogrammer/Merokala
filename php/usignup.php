@@ -245,6 +245,14 @@ input:focus {
     outline: none;
 }
 
+.error {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 6px;
+    min-height: 14px;
+    display: block;
+}
+
 /* BUTTON */
 button {
     margin-top: 20px;

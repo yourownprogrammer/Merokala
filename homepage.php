@@ -4,6 +4,11 @@ require "php/dbconnection.php";
 
 $isUser     = isset($_SESSION['user_id']);
 $isProvider = isset($_SESSION['provider_id']);
+$userFirstName = "User";
+if (!empty($_SESSION['user_name'])) {
+    $nameParts = preg_split('/\s+/', trim($_SESSION['user_name']));
+    $userFirstName = $nameParts[0] ?? "User";
+}
 
 $cartCount = 0;
 if (!empty($_SESSION['cart'])) {
@@ -166,7 +171,7 @@ function fetchProducts($conn, $categoryId) {
 
 <?php else: ?>
 
-    <a href="php/user_dashboard.php" class="btn">My Account</a>
+    <a href="php/user_dashboard.php" class="btn">Hi, <?= htmlspecialchars($userFirstName) ?></a>
     <a href="php/logout.php" class="sell-link">Logout</a>
 
 <?php endif; ?>

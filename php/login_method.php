@@ -22,14 +22,27 @@ $email = htmlspecialchars($_GET['email']);
         .method-section {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 0;
             width: 100%;
             margin-top: 10px;
         }
 
+        .method-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .method-section .input-field {
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
         .email-text {
             font-size: 16px;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             color: #444;
         }
 
@@ -52,47 +65,11 @@ $email = htmlspecialchars($_GET['email']);
             transform: translateY(-2px);
         }
 
-        /* ===== OR TEXT ===== */
-        .small-or {
-            text-align: center;
-            font-size: 16px;
-            font-weight: 700;
-            color: #444;
-        }
-
-        .subtext {
-            text-align: center;
-            font-size: 15px;
+        .password-note {
+            font-size: 14px;
             color: #666;
-            margin-top: -6px;
-        }
-
-        /* ===== OTP UI ===== */
-        .otp-row {
-            display: flex;
-            width: 100%;
-        }
-
-        .otp-input {
-            flex: 1;
-            padding: 15px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 10px 0 0 10px;
-            border-right: none;
-            box-sizing: border-box;
-        }
-
-        .send-btn {
-            width: 110px;
-            background: #ff7a00;
-            color: #fff;
-            border: 1px solid #ff7a00;
-            border-radius: 0 10px 10px 0;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: not-allowed;
-            opacity: 0.6;
+            margin: 0;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -106,7 +83,7 @@ $email = htmlspecialchars($_GET['email']);
 <section class="login-area">
     <div class="login-container">
 
-        <h2 class="title">Choose a login method</h2>
+        <h2 class="title">Login to your account</h2>
 
         <p class="email-text">
             Logging in as <b><?= $email ?></b>
@@ -114,7 +91,6 @@ $email = htmlspecialchars($_GET['email']);
 
         <div class="method-section">
 
-            <!-- ===== PASSWORD LOGIN ===== -->
             <form action="login_process.php" method="POST">
                 <input type="hidden" name="email" value="<?= $email ?>">
 
@@ -126,26 +102,12 @@ $email = htmlspecialchars($_GET['email']);
                     required
                 >
 
+                <p class="password-note">Use your account password to continue.</p>
+
                 <button type="submit" class="continue-final-btn">
                     Login
                 </button>
             </form>
-
-            <!-- ===== OTP SECTION (UI ONLY) ===== -->
-            <div class="small-or">OR</div>
-            <div class="subtext">Login through OTP</div>
-
-            <div class="otp-row">
-                <input
-                    type="text"
-                    placeholder="Enter OTP"
-                    class="otp-input"
-                    disabled
-                >
-                <button class="send-btn" disabled>
-                    Send
-                </button>
-            </div>
 
         </div>
 
