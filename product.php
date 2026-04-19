@@ -41,6 +41,55 @@ if ($product['provider_id'] === null) {
     $uploaderName = trim($product['first_name'] . ' ' . $product['last_name']);
 }
 
+
+if (!isset($_SESSION['recent_product_ids']) || !is_array($_SESSION['recent_product_ids'])) {
+    $_SESSION['recent_product_ids'] = [];
+}
+$recentList = array_values(array_filter(
+    $_SESSION['recent_product_ids'],
+    function ($id) use ($product_id) {
+        return (int) $id !== $product_id;
+    }
+));
+array_unshift($recentList, $product_id);
+$recentList = array_slice(array_values(array_unique(array_map('intval', $recentList))), 0, 12);
+$_SESSION['recent_product_ids'] = $recentList;
+
+$sidebarRecentIds = array_slice($recentList, 1, 8);
+$recentSidebarProducts = [];
+if (!empty($sidebarRecentIds)) {
+    $ids = array_map('intval', $sidebarRecentIds);
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $types = str_repeat('i', count($ids));
+    $fieldOrder = implode(',', $ids);
+    $recentStmt = $conn->prepare("
+        SELECT id, name, description, price, image
+        FROM products
+        WHERE id IN ($placeholders)
+          AND status = 'approved'
+        ORDER BY FIELD(id, $fieldOrder)
+    ");
+    $recentStmt->bind_param($types, ...$ids);
+    $recentStmt->execute();
+    $rr = $recentStmt->get_result();
+    while ($row = $rr->fetch_assoc()) {
+        $recentSidebarProducts[] = $row;
+    }
+    $recentStmt->close();
+}
+
+function excerpt_recent_product_desc($text, $maxLen = 88)
+{
+    $t = trim(preg_replace('/\s+/', ' ', (string) $text));
+    if ($t === '') {
+        return '';
+    }
+    if (strlen($t) <= $maxLen) {
+        return $t;
+    }
+    return substr($t, 0, $maxLen - 1) . '…';
+}
+
 /* ---------- OWN-WRITTEN RECOMMENDATION ALGORITHM ---------- */
 function tokenize_text($text)
 {
@@ -133,16 +182,41 @@ $recommendedProducts = array_slice($scoredProducts, 0, 4);
 <style>
 body {
   margin: 0;
-  padding: 40px 0;
+  padding: 0 0 32px;
   font-family: Arial, sans-serif;
   background: #fafafa;
+}
+.product-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 40px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  margin-bottom: 12px;
+}
+.product-header .logo-link {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff7a00;
+  text-decoration: none;
+  line-height: 1.2;
+}
+.product-page {
+  display: flex;
+  gap: 28px;
+  max-width: 1320px;
+  margin: 0 40px 0 60px;
+  align-items: flex-start;
+}
+.product-main {
+  flex: 1;
+  min-width: 0;
 }
 .product-wrapper {
   display: flex;
   gap: 40px;
-  max-width: 1200px;
-  margin-left: 60px;
-  margin-right: auto;
+  max-width: 100%;
+  margin: 0;
   align-items: flex-start;
 }
 .product-wrapper img {
@@ -234,9 +308,103 @@ body {
 .save:hover {
   color: #c0392b;
 }
+.recent-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 24px;
+  align-self: flex-start;
+}
+.recent-sidebar-inner {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  padding: 18px 16px;
+}
+.recent-sidebar h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+.recent-sidebar .recent-hint {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+.recent-item-desc {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.35;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.recent-item {
+  border-top: 1px solid #f0f0f0;
+}
+.recent-item:first-of-type {
+  border-top: none;
+}
+.recent-item a {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  margin: 0 -6px;
+  padding-left: 6px;
+  padding-right: 6px;
+  transition: background 0.15s ease;
+}
+.recent-item a:hover {
+  background: #fafafa;
+}
+.recent-item img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f3f3f3;
+  flex-shrink: 0;
+}
+.recent-item-text {
+  min-width: 0;
+}
+.recent-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #222;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.recent-item-price {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+.recent-empty {
+  font-size: 13px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0;
+}
 .recommended-section {
-  max-width: 1200px;
-  margin: 38px 60px 0;
+  max-width: 1320px;
+  margin: 38px 40px 0 60px;
 }
 .recommended-title {
   font-size: 24px;
@@ -287,9 +455,22 @@ body {
   font-weight: 600;
 }
 @media (max-width: 1080px) {
-  .product-wrapper {
+  .product-header {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .product-page {
     margin-left: 24px;
     margin-right: 24px;
+    flex-direction: column;
+  }
+  .recent-sidebar {
+    width: 100%;
+    position: static;
+    order: 2;
+  }
+  .product-main {
+    order: 1;
   }
   .recommended-section {
     margin: 32px 24px 0;
@@ -300,7 +481,15 @@ body {
 }
 @media (max-width: 680px) {
   body {
-    padding: 18px 0 28px;
+    padding: 0 0 24px;
+  }
+  .product-header {
+    padding: 8px 16px;
+    margin-bottom: 10px;
+  }
+  .product-page {
+    margin-left: 16px;
+    margin-right: 16px;
   }
   .product-wrapper {
     flex-direction: column;
@@ -309,6 +498,10 @@ body {
   .product-wrapper img,
   .product-info {
     width: 100%;
+  }
+  .recommended-section {
+    margin-left: 16px;
+    margin-right: 16px;
   }
   .recommended-grid {
     grid-template-columns: 1fr;
@@ -319,57 +512,94 @@ body {
 
 <body>
 
-<header style="display:flex;align-items:center;padding:15px 40px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:20px;">
-    <a href="homepage.php" style="font-size:24px;font-weight:700;color:#ff7a00;text-decoration:none;">Merokala</a>
-    <a href="homepage.php" style="margin-left:20px;color:#666;text-decoration:none;">← Back</a>
+<header class="product-header">
+    <a href="homepage.php" class="logo-link">Merokala</a>
 </header>
-<div class="product-wrapper">
+<div class="product-page">
+  <div class="product-main">
+    <div class="product-wrapper">
 
-  <img src="<?= !empty($product['image']) ? 'uploads/' . htmlspecialchars($product['image']) : 'pics/one.png' ?>"
-       alt="<?= htmlspecialchars($product['name']) ?>"
-       onerror="this.src='pics/one.png'">
+      <img src="<?= !empty($product['image']) ? 'uploads/' . htmlspecialchars($product['image']) : 'pics/one.png' ?>"
+           alt="<?= htmlspecialchars($product['name']) ?>"
+           onerror="this.src='pics/one.png'">
 
-  <div class="product-info">
+      <div class="product-info">
 
-    <h1><?= htmlspecialchars(ucwords($product['name'])) ?></h1>
-    <div class="uploader">by <?= htmlspecialchars($uploaderName) ?></div>
+        <h1><?= htmlspecialchars(ucwords($product['name'])) ?></h1>
+        <div class="uploader">by <?= htmlspecialchars($uploaderName) ?></div>
 
-    <div class="price">Rs. <?= number_format($product['price'], 2) ?></div>
+        <div class="price">Rs. <?= number_format($product['price'], 2) ?></div>
 
-    <div class="description">
-      <?= nl2br(htmlspecialchars($product['description'])) ?>
+        <div class="description">
+          <?= nl2br(htmlspecialchars($product['description'])) ?>
+        </div>
+
+        <div class="meta">Handmade • One-of-a-kind</div>
+        <div class="meta-small">Secure checkout • No mass production</div>
+
+        <div class="actions">
+          <form action="add_to_cart.php" method="POST" style="flex:1;">
+            <input type="hidden" name="product_id" value="<?= $product_id ?>">
+            <input type="hidden" name="return_url" value="product.php?id=<?= $product_id ?>">
+            <button type="submit" class="add-cart">Add to Cart</button>
+          </form>
+
+          <form action="add_to_cart.php" method="POST" style="flex:1;">
+            <input type="hidden" name="product_id" value="<?= $product_id ?>">
+            <input type="hidden" name="buy_now" value="1">
+            <button type="submit" class="buy-now">Buy Now</button>
+          </form>
+        </div>
+
+        <form method="POST" action="toggle_favourite.php" class="save-form">
+          <input type="hidden" name="product_id" value="<?= $product_id ?>">
+          <button type="submit" class="save">♡ Save to favourites</button>
+        </form>
+
+      </div>
+
     </div>
-
-    <div class="meta">Handmade • One-of-a-kind</div>
-    <div class="meta-small">Secure checkout • No mass production</div>
-
-    <div class="actions">
-      <form action="add_to_cart.php" method="POST" style="flex:1;">
-        <input type="hidden" name="product_id" value="<?= $product_id ?>">
-        <input type="hidden" name="return_url" value="product.php?id=<?= $product_id ?>">
-        <button type="submit" class="add-cart">Add to Cart</button>
-      </form>
-
-      <form action="add_to_cart.php" method="POST" style="flex:1;">
-        <input type="hidden" name="product_id" value="<?= $product_id ?>">
-        <input type="hidden" name="buy_now" value="1">
-        <button type="submit" class="buy-now">Buy Now</button>
-      </form>
-    </div>
-
-    <form method="POST" action="toggle_favourite.php" class="save-form">
-      <input type="hidden" name="product_id" value="<?= $product_id ?>">
-      <button type="submit" class="save">♡ Save to favourites</button>
-    </form>
-
   </div>
 
+  <aside class="recent-sidebar" aria-label="Recently viewed products">
+    <div class="recent-sidebar-inner">
+      <h3>Recent products</h3>
+      <p class="recent-hint">
+        
+      </p>
+      <?php if (!empty($recentSidebarProducts)): ?>
+        <ul class="recent-list">
+          <?php foreach ($recentSidebarProducts as $rp): ?>
+            <?php $recentDesc = excerpt_recent_product_desc($rp['description'] ?? ''); ?>
+            <li class="recent-item">
+              <a href="product.php?id=<?= (int) $rp['id'] ?>">
+                <img
+                  src="<?= !empty($rp['image']) ? 'uploads/' . htmlspecialchars($rp['image']) : 'pics/one.png' ?>"
+                  alt=""
+                  onerror="this.src='pics/one.png'"
+                >
+                <div class="recent-item-text">
+                  <div class="recent-item-title"><?= htmlspecialchars(ucwords($rp['name'])) ?></div>
+                  <?php if ($recentDesc !== ''): ?>
+                    <div class="recent-item-desc"><?= htmlspecialchars($recentDesc) ?></div>
+                  <?php endif; ?>
+                  <div class="recent-item-price">Rs. <?= number_format((float) $rp['price'], 2) ?></div>
+                </div>
+              </a>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php else: ?>
+        <p class="recent-empty"></p>
+      <?php endif; ?>
+    </div>
+  </aside>
 </div>
 
 <?php if (!empty($recommendedProducts)): ?>
 <section class="recommended-section">
   <h2 class="recommended-title">Recommended Products</h2>
-  <p class="recommended-subtitle">Calculated using keyword similarity and price closeness.</p>
+  <p class="recommended-subtitle"></p>
 
   <div class="recommended-grid">
     <?php foreach ($recommendedProducts as $recommended): ?>

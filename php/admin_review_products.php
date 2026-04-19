@@ -138,6 +138,8 @@ th {
 
 <body>
 
+<?php require __DIR__ . '/admin_subnav.php'; ?>
+
 <h1>Admin Product Moderation</h1>
 
 <!-- ================= PENDING ================= -->

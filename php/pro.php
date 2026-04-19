@@ -41,7 +41,7 @@ if ($first_name === "") {
 } elseif (!preg_match("/^[A-Za-z ]+$/", $first_name)) {
     $firstNameErr = "No numbers or symbols allowed";
     $hasError = true;
-} elseif (strlen($first_name) < 4) {
+} elseif (strlen($first_name) < 2) {
     $firstNameErr = "Name is too short";
     $hasError = true;
 }
@@ -53,7 +53,7 @@ if ($last_name === "") {
 } elseif (!preg_match("/^[A-Za-z ]+$/", $last_name)) {
     $lastNameErr = "No numbers or symbols allowed";
     $hasError = true;
-} elseif (strlen($last_name) < 4) {
+} elseif (strlen($last_name) < 2) {
     $lastNameErr = "Name is too short";
     $hasError = true;
 }
@@ -371,7 +371,7 @@ function validateName(input) {
         return;
     }
 
-    if (value.length < 4) {
+    if (value.length < 2) {
         showError(input, "Name is too short");
         return;
     }

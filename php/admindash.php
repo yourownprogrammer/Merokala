@@ -371,12 +371,13 @@ body{
 </head>
 <body>
 
+<?php require __DIR__ . '/admin_subnav.php'; ?>
+
 <!-- HEADER -->
 <div class="header">
     <h2>Admin Dashboard</h2>
     <div>
-        Welcome, <?php echo htmlspecialchars($_SESSION['admin_name']); ?> |
-        <a href="adminlogout.php">Logout</a>
+        Welcome, <?php echo htmlspecialchars($_SESSION['admin_name']); ?>
     </div>
 </div>
 

@@ -99,6 +99,8 @@ button {
 </head>
 <body>
 
+<?php require __DIR__ . '/admin_subnav.php'; ?>
+
 <h1>Add Product (Admin)</h1>
 
 <?php if ($message): ?>

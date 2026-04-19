@@ -3,7 +3,7 @@ require "dbconnection.php";
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: admin_login.php");
+    header("Location: adminlogin.php");
     exit;
 }
 
@@ -55,6 +55,8 @@ a.btn { padding:6px 12px; border-radius:6px; text-decoration:none; color:#fff; }
 </style>
 </head>
 <body>
+
+<?php require __DIR__ . '/admin_subnav.php'; ?>
 
 <h1>Manage Providers</h1>
 

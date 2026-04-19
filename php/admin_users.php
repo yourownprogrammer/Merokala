@@ -52,6 +52,8 @@ $result = $conn->query("SELECT id, name, email, status, created_at FROM users OR
 </head>
 <body>
 
+<?php require __DIR__ . '/admin_subnav.php'; ?>
+
 <h1>Manage Users</h1>
 
 <table>

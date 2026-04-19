@@ -38,6 +38,8 @@ button { padding:6px 12px; margin-right:6px; cursor:pointer; }
 </head>
 <body>
 
+<?php require __DIR__ . '/admin_subnav.php'; ?>
+
 <h2>Orders</h2>
 
 <?php if ($flashMsg): ?>

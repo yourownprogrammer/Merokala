@@ -190,14 +190,14 @@ function fetchProducts($conn, $categoryId) {
       <div class="slide-text">
         <h1>Find Handmade Creations & Authentic Products</h1>
         <p>Discover unique art and support independent creators from Nepal.</p>
-        <button class="btn">Shop Now</button>
+        <a href="php/usignup.php"><button class="btn">Shop Now</button></a>
       </div>
     </div>
     <div class="slide" style="background-image:url('pics/two.png')">
       <div class="slide-text">
         <h1>List Your Products</h1>
         <p>Join our community of artists and sell your handmade creations.</p>
-        <button class="btn">Start Listing</button>
+        <a href="php/providersignup.php"><button class="btn">Start Listing</button></a>
       </div>
     </div>
     <div class="slide" style="background-image:url('pics/three.png')">
